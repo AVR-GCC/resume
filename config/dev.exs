@@ -2,10 +2,10 @@ import Config
 
 # Configure your database
 config :resume, Resume.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "phoenix_user_1",
+  password: "12345678",
   hostname: "localhost",
-  database: "resume_dev",
+  database: "phoenix_db_1",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
