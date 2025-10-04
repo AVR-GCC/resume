@@ -393,25 +393,6 @@ defmodule ResumeWeb.CoreComponents do
   end
 
   @doc """
-  Renders a toolbar component.
-
-  ## Examples
-
-      <.toolbar />
-      <.toolbar class="custom-class" />
-  """
-  attr :class, :string, default: nil
-  attr :rest, :global
-
-  def toolbar(assigns) do
-    ~H"""
-    <div class={["w-full bg-black text-white p-4", @class]} {@rest}>
-      <span>toolbar</span>
-    </div>
-    """
-  end
-
-  @doc """
   Renders a [Heroicon](https://heroicons.com).
 
   Heroicons come in three styles – outline, solid, and mini.

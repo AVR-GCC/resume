@@ -6,5 +6,6 @@ defmodule ResumeWeb.PageHTML do
   """
   use ResumeWeb, :html
 
+  embed_templates "../components/toolbar/*"
   embed_templates "page_html/*"
 end
