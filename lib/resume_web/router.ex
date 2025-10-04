@@ -18,6 +18,10 @@ defmodule ResumeWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/about", AboutController, :about
+    get "/skills", SkillsController, :skills
+    get "/projects", ProjectsController, :projects
+    get "/contact", ContactController, :contact
   end
 
   # Other scopes may use custom stacks.
