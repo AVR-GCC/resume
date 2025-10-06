@@ -19,7 +19,6 @@ defmodule ResumeWeb.Router do
 
     get "/", PageController, :home
     get "/about", AboutController, :about
-    get "/skills", SkillsController, :skills
     get "/projects", ProjectsController, :projects
     get "/contact", ContactController, :contact
   end
