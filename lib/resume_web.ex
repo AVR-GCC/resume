@@ -87,6 +87,9 @@ defmodule ResumeWeb do
       # Core UI components
       import ResumeWeb.CoreComponents
 
+      # My UI components
+      import ResumeWeb.AppComponents
+
       # Common modules used in templates
       alias Phoenix.LiveView.JS
       alias ResumeWeb.Layouts
