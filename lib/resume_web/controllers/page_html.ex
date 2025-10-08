@@ -5,7 +5,7 @@ defmodule ResumeWeb.PageHTML do
   See the `page_html` directory for all templates available.
   """
   use ResumeWeb, :html
+  import ResumeWeb.AppComponents
 
-  embed_templates "../components/toolbar/*"
   embed_templates "page_html/*"
 end

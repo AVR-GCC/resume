@@ -1,0 +1,41 @@
+defmodule ResumeWeb.AppComponents do
+  use Phoenix.Component
+  use ResumeWeb, :verified_routes
+  alias ResumeWeb.CoreComponents
+
+  def toolbar(assigns) do
+    ~H"""
+    <div class={["flex flex-row-reverse w-full text-white p-4"]}>
+      <.link href={~p"/contact"} class="p-5">Contact</.link>
+      <.link href={~p"/projects"} class="p-5">Projects</.link>
+      <.link href={~p"/skills"} class="p-5">Skills</.link>
+      <.link href={~p"/about"} class="p-5">About</.link>
+      <.link href={~p"/"} class="p-5">Home</.link>
+    </div>
+    """
+  end
+
+  slot :inner_block, required: true
+  def page(assigns) do
+    ~H"""
+    <div class="container mx-auto px-6 z-10 animate-fade-in min-h-screen flex items-center justify-center">
+      <div class="absolute inset-0 z-20">
+        <.toolbar />
+      </div>
+      <div class="absolute inset-0 z-0">
+        <img
+          src={~p"/images/hero-bg.jpg"}
+          alt=""
+          class="w-full h-full object-cover opacity-20"
+        />
+        <div class="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
+      </div>
+      <div class="flex items-center justify-center max-w-4xl mx-auto text-center z-10">
+        <div class="flex items-center justify-center">
+          {render_slot(@inner_block)}
+        </div>
+      </div>
+    </div>
+    """
+  end
+end
