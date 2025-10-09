@@ -1,7 +1,6 @@
 defmodule ResumeWeb.AppComponents do
   use Phoenix.Component
   use ResumeWeb, :verified_routes
-  alias ResumeWeb.CoreComponents
 
   def toolbar(assigns) do
     ~H"""
