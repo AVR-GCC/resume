@@ -1,0 +1,27 @@
+<Layouts.app flash={@flash}>
+  <.header>
+    Listing Skills
+    <:actions>
+      <.button href={~p"/admin/skills/new"}>
+        <.icon name="hero-plus" /> New Skill
+      </.button>
+    </:actions>
+  </.header>
+
+  <.table id="skills" rows={@skills} row_click={&JS.navigate(~p"/admin/skills/#{&1}")}>
+    <:col :let={skill} label="Name">{skill.name}</:col>
+    <:col :let={skill} label="Link">{skill.link}</:col>
+    <:col :let={skill} label="Description">{skill.description}</:col>
+    <:action :let={skill}>
+      <div class="sr-only">
+        <.link navigate={~p"/admin/skills/#{skill}"}>Show</.link>
+      </div>
+      <.link navigate={~p"/admin/skills/#{skill}/edit"}>Edit</.link>
+    </:action>
+    <:action :let={skill}>
+      <.link href={~p"/admin/skills/#{skill}"} method="delete" data-confirm="Are you sure?">
+        Delete
+      </.link>
+    </:action>
+  </.table>
+</Layouts.app>

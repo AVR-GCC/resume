@@ -21,6 +21,14 @@ defmodule ResumeWeb.Router do
     get "/about", AboutController, :about
     get "/projects", ProjectsController, :projects
     get "/contact", ContactController, :contact
+    get "/skills", SkillController, :index_user
+  end
+
+  scope "/admin", ResumeWeb do
+    pipe_through :browser
+
+    resources "/categories", CategoryController
+    resources "/skills", SkillController
   end
 
   # Other scopes may use custom stacks.

@@ -1,0 +1,26 @@
+<Layouts.app flash={@flash}>
+  <.header>
+    Listing Categories
+    <:actions>
+      <.button href={~p"/admin/categories/new"}>
+        <.icon name="hero-plus" /> New Category
+      </.button>
+    </:actions>
+  </.header>
+
+  <.table id="categories" rows={@categories} row_click={&JS.navigate(~p"/admin/categories/#{&1}")}>
+    <:col :let={category} label="Name">{category.name}</:col>
+    <:col :let={category} label="Icon">{category.icon}</:col>
+    <:action :let={category}>
+      <div class="sr-only">
+        <.link navigate={~p"/admin/categories/#{category}"}>Show</.link>
+      </div>
+      <.link navigate={~p"/admin/categories/#{category}/edit"}>Edit</.link>
+    </:action>
+    <:action :let={category}>
+      <.link href={~p"/admin/categories/#{category}"} method="delete" data-confirm="Are you sure?">
+        Delete
+      </.link>
+    </:action>
+  </.table>
+</Layouts.app>

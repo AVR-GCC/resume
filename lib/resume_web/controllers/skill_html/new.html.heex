@@ -1,0 +1,13 @@
+<Layouts.app flash={@flash}>
+  <.header>
+    New Skill
+    <:subtitle>Use this form to manage skill records in your database.</:subtitle>
+  </.header>
+
+  <.skill_form
+    changeset={@changeset}
+    action={~p"/admin/skills"}
+    return_to={~p"/admin/skills"}
+    categories={@categories}
+  />
+</Layouts.app>

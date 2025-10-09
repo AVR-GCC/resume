@@ -1,0 +1,16 @@
+<.form :let={f} for={@changeset} action={@action}>
+  <.input field={f[:name]} type="text" label="Name" />
+  <.input field={f[:link]} type="text" label="Link" />
+  <.input field={f[:description]} type="text" label="Description" />
+  <.input
+    field={f[:category_id]}
+    type="select"
+    label="Category"
+    options={@categories}
+    prompt="Choose a category"
+  />
+  <footer>
+    <.button variant="primary">Save Skill</.button>
+    <.button :if={@return_to} href={@return_to}>Cancel</.button>
+  </footer>
+</.form>
