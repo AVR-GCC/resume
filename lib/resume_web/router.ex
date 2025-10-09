@@ -18,7 +18,6 @@ defmodule ResumeWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    get "/.well-known/appspecific/com.chrome.devtools.json", PageController, :devtools
     get "/about", AboutController, :about
     get "/projects", ProjectsController, :projects
     get "/contact", ContactController, :contact

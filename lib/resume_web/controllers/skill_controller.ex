@@ -5,10 +5,6 @@ defmodule ResumeWeb.SkillController do
   alias Resume.Skills.Skill
   alias Resume.Categories
 
-  def devtools(conn, _params) do
-    send_resp(conn, 204, "")
-  end
-
   def index(conn, _params) do
     skills = Skills.list_skills()
     categories = Categories.list_categories()

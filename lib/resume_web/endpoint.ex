@@ -50,5 +50,16 @@ defmodule ResumeWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+  plug :handle_devtools_get
   plug ResumeWeb.Router
+
+  def handle_devtools_get(conn, _params) do
+    case conn.request_path do
+      "/.well-known/appspecific/com.chrome.devtools.json" ->
+        conn
+          |> send_resp(204, "")
+          |> halt()
+      _ -> conn
+    end
+  end
 end
