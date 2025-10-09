@@ -7,15 +7,15 @@ defmodule ResumeWeb.SkillController do
 
   def index(conn, _params) do
     skills = Skills.list_skills()
-    render(conn, :index, skills: skills)
+    categories = Categories.list_categories()
+    categories_map = Map.new(categories, fn c -> {c.id, c} end)
+    render(conn, :index, skills: skills, categories: categories_map)
   end
 
   def new(conn, _params) do
     changeset = Skills.change_skill(%Skill{})
     categories = Categories.list_categories()
-    IO.inspect(categories)
     category_options = category_options(categories)
-    IO.inspect(category_options)
     render(conn, :new, changeset: changeset, categories: category_options)
   end
 

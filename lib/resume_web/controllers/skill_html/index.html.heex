@@ -12,6 +12,7 @@
     <:col :let={skill} label="Name">{skill.name}</:col>
     <:col :let={skill} label="Link">{skill.link}</:col>
     <:col :let={skill} label="Description">{skill.description}</:col>
+    <:col :let={skill} label="Category">{@categories[skill.category_id].name}</:col>
     <:action :let={skill}>
       <div class="sr-only">
         <.link navigate={~p"/admin/skills/#{skill}"}>Show</.link>
