@@ -74,9 +74,9 @@ defmodule ResumeWeb.MarketSimLive.Index do
           <div class="h-7" />
           <.button phx-click="add_trader" disabled={Enum.all?(@strategy_weights, fn {_, val} -> val == 0 end)}>Add</.button>
         </div>
-        <div class="flex flex-col items-center p-5 h-96 border-neutral-50 border-2">
+        <div class="flex flex-col items-center p-5 border-neutral-50 border-2">
           <h2>Traders</h2>
-          <div class="flex flex-col">
+          <div class="flex flex-col h-96 overflow-y-auto">
             <.table id="traders" rows={Enum.with_index(@traders)}>
               <:col :for={strat <- @strategies} :let={{trader, _}} label={get_name(strat)}>
                 <div class="flex justify-center">{Map.get(trader, strat)}</div>
