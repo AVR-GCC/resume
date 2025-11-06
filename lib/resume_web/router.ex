@@ -1,4 +1,5 @@
 defmodule ResumeWeb.Router do
+  # alias ResumeWeb.MarketSimLive
   use ResumeWeb, :router
 
   pipeline :browser do
@@ -22,6 +23,7 @@ defmodule ResumeWeb.Router do
     get "/projects", ProjectsController, :projects
     get "/contact", ContactController, :contact
     get "/skills", SkillController, :index_user
+    live "/market-sim", MarketSimLive.Index
   end
 
   scope "/admin", ResumeWeb do
