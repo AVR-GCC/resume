@@ -19,8 +19,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def handle_event("remove_trader", %{"index" => index_str}, socket) do
     index = String.to_integer(index_str)
     new_traders = List.delete_at(socket.assigns.traders, index)
-    socket =
-      socket
+    socket = socket
       |> assign(:traders, new_traders)
     {:noreply, socket}
   end
@@ -42,8 +41,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
     old_strategy_weights = socket.assigns.strategy_weights
     increment = if direction == "up" do 1 else -1 end
     strategy_weights = Map.update(old_strategy_weights, strat, 1, &(if &1 == 0 and direction == "down" do 0 else &1 + increment end))
-    socket =
-      socket
+    socket = socket
       |> assign(:strategy_weights, strategy_weights)
     {:noreply, socket}
   end
@@ -63,12 +61,50 @@ defmodule ResumeWeb.MarketSimLive.Index do
     {top, bottom} = if falling do {round(cur * 100), round(next * 100)} else {round(next * 100), round(cur * 100)} end
     style = "width: 5px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom}px;"
     assigns = assigns
-    |> assign(:style, style)
-    |> assign(:lst, [next | rest])
-    |> assign(:x, x + 1)
+      |> assign(:style, style)
+      |> assign(:lst, [next | rest])
+      |> assign(:x, x + 1)
     ~H"""
     <div style={@style} />
     <.candles lst={@lst} x={@x} />
+    """
+  end
+
+  def new_trader(assigns) do
+    ~H"""
+      <.table id="traders" rows={@strategies}>
+        <:col :let={strat}><div>{get_name(strat)}</div></:col>
+        <:col :let={strat}><div>{@strategy_weights[strat]}</div></:col>
+        <:col :let={strat}>
+          <div class="flex flex-col cursor-pointer">
+            <.icon name="hero-arrow-up-mini" phx-click="change-weight" phx-value-direction="up" phx-value-strat={strat} />
+            <.icon name="hero-arrow-down-mini" phx-click="change-weight" phx-value-direction="down" phx-value-strat={strat} />
+          </div>
+        </:col>
+      </.table>
+      <div class="h-7" />
+      <.button phx-click="add_trader" disabled={Enum.all?(@strategy_weights, fn {_, val} -> val == 0 end)}>Add</.button>
+    """
+  end
+
+  def traders_list(assigns) do
+    ~H"""
+    <div class="flex flex-col h-96 overflow-y-auto">
+      <.table id="traders" rows={Enum.with_index(@traders)}>
+        <:col :for={strat <- @strategies} :let={{trader, _}} label={get_name(strat)}>
+          <div class="flex justify-center">{Map.get(trader, strat)}</div>
+        </:col>
+        <:col :let={{_, index}}><.icon name="hero-trash-mini" class="cursor-pointer" phx-click="remove_trader" phx-value-index={index} /></:col>
+      </.table>
+    </div>
+    """
+  end
+
+  def price_history(assigns) do
+    ~H"""
+    <div class="flex items-end h-[100px]">
+      <.candles lst={@price_history} x={0} />
+    </div>
     """
   end
 
@@ -79,38 +115,20 @@ defmodule ResumeWeb.MarketSimLive.Index do
         <h1>Market Simulator</h1>
       </div>
 
-      <div class="flex p-2 z-10">
-        <div class="flex flex-col items-center p-5 w-80 border-neutral-50 border-2">
+      <div class="flex">
+        <div class="flex-1 flex flex-col items-center m-2 p-5 border-neutral-50 border-2">
           <h2 class="w-fit">Add Trader</h2>
-          <.table id="traders" rows={@strategies}>
-            <:col :let={strat}><div>{get_name(strat)}</div></:col>
-            <:col :let={strat}><div>{@strategy_weights[strat]}</div></:col>
-            <:col :let={strat}>
-              <div class="flex flex-col cursor-pointer">
-                <.icon name="hero-arrow-up-mini" phx-click="change-weight" phx-value-direction="up" phx-value-strat={strat} />
-                <.icon name="hero-arrow-down-mini" phx-click="change-weight" phx-value-direction="down" phx-value-strat={strat}  />
-              </div>
-            </:col>
-          </.table>
-          <div class="h-7" />
-          <.button phx-click="add_trader" disabled={Enum.all?(@strategy_weights, fn {_, val} -> val == 0 end)}>Add</.button>
+          <.new_trader {assigns} />
         </div>
-        <div class="flex flex-col items-center p-5 border-neutral-50 border-2">
+        <div class="flex-3 flex flex-col items-center m-2 p-5 border-neutral-50 border-2">
           <h2>Traders</h2>
-          <div class="flex flex-col h-96 overflow-y-auto">
-            <.table id="traders" rows={Enum.with_index(@traders)}>
-              <:col :for={strat <- @strategies} :let={{trader, _}} label={get_name(strat)}>
-                <div class="flex justify-center">{Map.get(trader, strat)}</div>
-              </:col>
-              <:col :let={{_, index}}><.icon name="hero-trash-mini" class="cursor-pointer" phx-click="remove_trader" phx-value-index={index} /></:col>
-            </.table>
-          </div>
+          <.traders_list {assigns} />
         </div>
-        <div class="flex flex-col items-center p-5 border-neutral-50 border-2">
+      </div>
+      <div class="flex">
+        <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
           <h2>History</h2>
-          <div class="flex items-end h-[100px]">
-            <.candles lst={@price_history} x={0} />
-          </div>
+          <.price_history {assigns} />
         </div>
       </div>
     """
