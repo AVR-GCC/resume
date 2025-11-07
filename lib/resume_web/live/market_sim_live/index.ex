@@ -4,7 +4,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
   @strategies ["momentum", "mean_reversion", "volitility_breakout", "external_sentiment"]
 
   def mount(_params, _session, socket) do
-    price_history = [0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18]
+    price_history = [0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18, 0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18, 0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18, 0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18]
     strategy_weights = Map.from_keys(@strategies, 0)
     socket =
       socket
@@ -52,24 +52,6 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def get_name("external_sentiment"), do: "External sentiment"
 
 
-  def candles(%{lst: []} = assigns), do: ~H""
-  def candles(%{lst: [_]} = assigns), do: ~H""
-  def candles(%{x: x} = assigns) when x > 50, do: ~H""
-  def candles(%{lst: [cur, next | rest], x: x } = assigns) do
-    falling = cur > next
-    color = if falling do "red" else "green" end
-    {top, bottom} = if falling do {round(cur * 100), round(next * 100)} else {round(next * 100), round(cur * 100)} end
-    style = "width: 5px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom}px;"
-    assigns = assigns
-      |> assign(:style, style)
-      |> assign(:lst, [next | rest])
-      |> assign(:x, x + 1)
-    ~H"""
-    <div style={@style} />
-    <.candles lst={@lst} x={@x} />
-    """
-  end
-
   def new_trader(assigns) do
     ~H"""
       <.table id="traders" rows={@strategies}>
@@ -100,9 +82,28 @@ defmodule ResumeWeb.MarketSimLive.Index do
     """
   end
 
+  def candles(%{lst: []} = assigns), do: ~H""
+  def candles(%{lst: [_]} = assigns), do: ~H""
+  def candles(%{x: x} = assigns) when x > 100, do: ~H""
+  def candles(%{lst: [cur, next | rest], x: x } = assigns) do
+    height = 300
+    falling = cur > next
+    color = if falling do "red" else "green" end
+    {top, bottom} = if falling do {round(cur * height), round(next * height)} else {round(next * height), round(cur * height)} end
+    style = "width: 8px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom}px; border-radius: 2px;"
+    assigns = assigns
+      |> assign(:style, style)
+      |> assign(:lst, [next | rest])
+      |> assign(:x, x + 1)
+    ~H"""
+    <div style={@style} />
+    <.candles lst={@lst} x={@x} />
+    """
+  end
+
   def price_history(assigns) do
     ~H"""
-    <div class="flex items-end h-[100px]">
+    <div class="flex items-end h-[300px]">
       <.candles lst={@price_history} x={0} />
     </div>
     """
