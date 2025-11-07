@@ -84,8 +84,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def candles(%{lst: []} = assigns), do: ~H""
   def candles(%{lst: [_]} = assigns), do: ~H""
-  def candles(%{x: x} = assigns) when x > 100, do: ~H""
-  def candles(%{lst: [cur, next | rest], x: x } = assigns) do
+  def candles(%{lst: [cur, next | rest] } = assigns) do
     height = 300
     falling = cur > next
     color = if falling do "red" else "green" end
@@ -94,17 +93,21 @@ defmodule ResumeWeb.MarketSimLive.Index do
     assigns = assigns
       |> assign(:style, style)
       |> assign(:lst, [next | rest])
-      |> assign(:x, x + 1)
     ~H"""
     <div style={@style} />
-    <.candles lst={@lst} x={@x} />
+    <.candles lst={@lst} />
     """
   end
 
   def price_history(assigns) do
+    price_history = assigns.price_history
+      |> Enum.take(100)
+    assigns = assigns
+      |> assign(:price_history, price_history)
+
     ~H"""
     <div class="flex items-end h-[300px]">
-      <.candles lst={@price_history} x={0} />
+      <.candles lst={@price_history} />
     </div>
     """
   end
