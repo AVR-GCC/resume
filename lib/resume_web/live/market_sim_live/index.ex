@@ -84,30 +84,35 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def candles(%{lst: []} = assigns), do: ~H""
   def candles(%{lst: [_]} = assigns), do: ~H""
-  def candles(%{lst: [cur, next | rest] } = assigns) do
+  def candles(%{lst: [cur, next | rest], offset: offset, variance: variance } = assigns) do
     height = 300
+    val_mul = height / variance
     falling = cur > next
     color = if falling do "red" else "green" end
-    {top, bottom} = if falling do {round(cur * height), round(next * height)} else {round(next * height), round(cur * height)} end
-    style = "width: 8px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom}px; border-radius: 2px;"
+    {top, bottom} = if falling do {round(cur * val_mul), round(next * val_mul)} else {round(next * val_mul), round(cur * val_mul)} end
+    style = "width: 8px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom - offset * val_mul}px; border-radius: 2px;"
     assigns = assigns
       |> assign(:style, style)
       |> assign(:lst, [next | rest])
     ~H"""
     <div style={@style} />
-    <.candles lst={@lst} />
+    <.candles {assigns} lst={@lst} />
     """
   end
 
   def price_history(assigns) do
     price_history = assigns.price_history
       |> Enum.take(100)
+
+    {min, max} = Enum.min_max(price_history)
     assigns = assigns
       |> assign(:price_history, price_history)
+      |> assign(:offset, min)
+      |> assign(:variance, max - min)
 
     ~H"""
     <div class="flex items-end h-[300px]">
-      <.candles lst={@price_history} />
+      <.candles lst={@price_history} offset={@offset} variance={@variance} />
     </div>
     """
   end
