@@ -88,8 +88,9 @@ defmodule ResumeWeb.MarketSimLive.Index do
     val_mul = height / variance
     falling = cur > next
     color = if falling do "red" else "green" end
-    {top, bottom} = if falling do {round(cur * val_mul), round(next * val_mul)} else {round(next * val_mul), round(cur * val_mul)} end
-    style = "width: 8px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom - offset * val_mul}px; border-radius: 2px;"
+    normalize = fn val -> round(val * val_mul) end
+    {top, bottom} = if falling do {normalize.(cur), normalize.(next)} else {normalize.(next), normalize.(cur)} end
+    style = "width: 8px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom - normalize.(offset)}px; border-radius: 2px;"
     assigns = assigns
       |> assign(:style, style)
       |> assign(:lst, [next | rest])
