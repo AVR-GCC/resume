@@ -4,6 +4,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
   @strategies ["momentum", "mean_reversion", "volitility_breakout", "external_sentiment"]
 
   def mount(_params, _session, socket) do
+    price_history = [0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18]
     strategy_weights = Map.from_keys(@strategies, 0)
     socket =
       socket
@@ -11,6 +12,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:traders, [])
       |> assign(:name, "")
       |> assign(:strategies, @strategies)
+      |> assign(:price_history, price_history)
     {:ok, socket}
   end
 
@@ -51,6 +53,26 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def get_name("volitility_breakout"), do: "Volitility breakout"
   def get_name("external_sentiment"), do: "External sentiment"
 
+
+  def candles(%{lst: []} = assigns), do: ~H""
+  def candles(%{lst: [_]} = assigns), do: ~H""
+  def candles(%{x: x} = assigns) when x > 50, do: ~H""
+  def candles(%{lst: [cur, next | rest], x: x } = assigns) do
+    falling = cur > next
+    color = if falling do "red" else "green" end
+    {top, bottom} = if falling do {round(cur * 100), round(next * 100)} else {round(next * 100), round(cur * 100)} end
+    class = "w-2 bg-#{color} h-[#{top - bottom}px] mb-[#{bottom}px]"
+    assigns = assigns
+    |> assign(:class, class)
+    |> assign(:lst, [next | rest])
+    |> assign(:x, x + 1)
+    IO.puts(class)
+    ~H"""
+    <div class={@class} />
+    <.candles lst={@lst} x={@x} />
+    """
+  end
+
     # </.page>
   def render(assigns) do
     ~H"""
@@ -83,6 +105,12 @@ defmodule ResumeWeb.MarketSimLive.Index do
               </:col>
               <:col :let={{_, index}}><.icon name="hero-trash-mini" class="cursor-pointer" phx-click="remove_trader" phx-value-index={index} /></:col>
             </.table>
+          </div>
+        </div>
+        <div class="flex flex-col items-center p-5 border-neutral-50 border-2">
+          <h2>History</h2>
+          <div class="flex flex-col h-96 overflow-y-auto">
+            <.candles lst={@price_history} x={0} />
           </div>
         </div>
       </div>
