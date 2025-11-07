@@ -6,8 +6,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def mount(_params, _session, socket) do
     price_history = [0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18, 0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18, 0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18, 0.67, 0.68, 0.01, 0.18, 0.67, 0.32, 0.71, 0.82, 0.52, 1.0, 0.6, 0.81, 0.99, 0.57, 0.6, 0.24, 0.19, 0.1, 0.84, 0.11, 0.48, 0.83, 0.91, 0.51, 0.95, 0.95, 0.33, 0.01, 0.63, 0.87, 0.76, 0.16, 0.71, 0.67, 0.79, 0.69, 0.51, 0.35, 0.53, 0.43, 0.13, 0.69, 0.25, 0.11, 0.22, 0.62, 0.93, 0.18, 0.32, 0.18]
     strategy_weights = Map.from_keys(@strategies, 0)
-    socket =
-      socket
+    socket = socket
       |> assign(:strategy_weights, strategy_weights)
       |> assign(:traders, [])
       |> assign(:name, "")
@@ -104,7 +103,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
     price_history = assigns.price_history
       |> Enum.take(100)
 
-    {min, max} = Enum.min_max(price_history)
+    {min, max} = Enum.min_max(price_history, fn -> {0, 1} end)
     assigns = assigns
       |> assign(:price_history, price_history)
       |> assign(:offset, min)
@@ -112,7 +111,21 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
     ~H"""
     <div class="flex items-end h-[300px]">
-      <.candles lst={@price_history} offset={@offset} variance={@variance} />
+      <div class="flex flex-col justify-between h-full mr-5">
+        {:erlang.float_to_binary((@offset + @variance) / 1.0, decimals: 2)}
+        <div>
+          {:erlang.float_to_binary(@offset + 2 * @variance / 3, decimals: 2)}
+        </div>
+        <div>
+          {:erlang.float_to_binary(@offset + @variance / 3, decimals: 2)}
+        </div>
+        <div>
+          {:erlang.float_to_binary(@offset / 1.0, decimals: 2)}
+        </div>
+      </div>
+      <div class="flex items-end w-[728px]">
+        <.candles lst={@price_history} offset={@offset} variance={@variance} />
+      </div>
     </div>
     """
   end
