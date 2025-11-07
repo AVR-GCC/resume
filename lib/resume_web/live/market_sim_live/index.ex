@@ -61,14 +61,13 @@ defmodule ResumeWeb.MarketSimLive.Index do
     falling = cur > next
     color = if falling do "red" else "green" end
     {top, bottom} = if falling do {round(cur * 100), round(next * 100)} else {round(next * 100), round(cur * 100)} end
-    class = "w-2 bg-#{color} h-[#{top - bottom}px] mb-[#{bottom}px]"
+    style = "width: 5px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom}px;"
     assigns = assigns
-    |> assign(:class, class)
+    |> assign(:style, style)
     |> assign(:lst, [next | rest])
     |> assign(:x, x + 1)
-    IO.puts(class)
     ~H"""
-    <div class={@class} />
+    <div style={@style} />
     <.candles lst={@lst} x={@x} />
     """
   end
@@ -109,7 +108,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
         </div>
         <div class="flex flex-col items-center p-5 border-neutral-50 border-2">
           <h2>History</h2>
-          <div class="flex flex-col h-96 overflow-y-auto">
+          <div class="flex items-end h-[100px]">
             <.candles lst={@price_history} x={0} />
           </div>
         </div>
