@@ -45,6 +45,11 @@ defmodule ResumeWeb.MarketSimLive.Index do
     {:noreply, socket}
   end
 
+  def handle_event("start_simulation", _, socket) do
+    Simulation.start_link()
+    {:noreply, socket}
+  end
+
   def get_name("momentum"), do: "Momentum"
   def get_name("mean_reversion"), do: "Mean reversion"
   def get_name("volitility_breakout"), do: "Volitility breakout"
@@ -147,6 +152,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           <h2>Traders</h2>
           <.traders_list {assigns} />
         </div>
+        <.button phx-click="start_simulation">Start</.button>
       </div>
       <div class="flex">
         <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
