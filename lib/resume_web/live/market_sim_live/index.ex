@@ -5,13 +5,12 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def mount(_params, _session, socket) do
     strategy_weights = Map.from_keys(@strategies, 0)
-    price_history = []
     socket = socket
       |> assign(:strategy_weights, strategy_weights)
       |> assign(:traders, [])
       |> assign(:name, "")
       |> assign(:strategies, @strategies)
-      |> assign(:price_history, price_history)
+      |> assign(:price_history, [100])
       |> assign(:price, 100)
       |> assign(:simulation_pid, nil)
     {:ok, socket}
@@ -50,7 +49,6 @@ defmodule ResumeWeb.MarketSimLive.Index do
     strategy_weights = socket.assigns.strategy_weights
     new_strategy_weights = Map.from_keys(@strategies, 0)
     new_traders = [strategy_weights | socket.assigns.traders]
-    IO.inspect(new_traders)
     socket = socket
       |> assign(:traders, new_traders)
       |> assign(:strategy_weights, new_strategy_weights)
@@ -70,7 +68,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def handle_event("toggle_simulation", _, socket) do
     case socket.assigns.simulation_pid do
       nil ->
-        {:ok, pid} = Simulation.start_link(self())
+        {:ok, pid} = Simulation.start_link(%{liveview_pid: self(), traders: socket.assigns.traders})
         socket = socket
           |> assign(:simulation_pid, pid)
         {:noreply, socket}
@@ -186,7 +184,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           <h2>Traders</h2>
           <.traders_list {assigns} />
         </div>
-        <.button phx-click="toggle_simulation">{if @simulation_pid == nil do "Start" else "Stop" end}</.button>
+        <.button phx-click="toggle_simulation" disabled={length(@traders) == 0}>{if @simulation_pid == nil do "Start" else "Stop" end}</.button>
       </div>
       <div class="flex">
         <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
