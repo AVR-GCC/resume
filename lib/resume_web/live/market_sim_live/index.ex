@@ -54,7 +54,8 @@ defmodule ResumeWeb.MarketSimLive.Index do
           |> assign(:ticker_pid, pid)
         {:noreply, socket}
       pid ->
-        Process.exit(pid, :kill)
+        Process.unlink(pid)
+        Process.exit(pid, :shutdown)
         socket = socket
           |> assign(:ticker_pid, nil)
         {:noreply, socket}
