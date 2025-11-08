@@ -19,12 +19,18 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   # External events
 
+  def handle_info({:update_price, delta_percentage}, socket) do
+    price = socket.assigns.price
+    socket = socket
+      |> assign(:price, price + delta_percentage * price)
+
+    {:noreply, socket}
+  end
+
   def handle_info(:tick, socket) do
-    new_price = socket.assigns.price + 1
-    new_price_history = [new_price | socket.assigns.price_history]
+    new_price_history = [socket.assigns.price | socket.assigns.price_history]
 
     socket = socket
-      |> assign(:price, new_price)
       |> assign(:price_history, new_price_history)
 
     {:noreply, socket}
@@ -134,14 +140,14 @@ defmodule ResumeWeb.MarketSimLive.Index do
   end
 
   def price_history(assigns) do
-    price_history = assigns.price_history
+    price_history = [assigns.price | assigns.price_history]
       |> Enum.take(100)
 
     {min, max} = Enum.min_max(price_history, fn -> {0, 1} end)
     assigns = assigns
       |> assign(:price_history, price_history)
       |> assign(:offset, min)
-      |> assign(:variance, max - min)
+      |> assign(:variance, if max == min do 1 else max - min end)
 
     ~H"""
     <div class="flex items-end h-[300px]">

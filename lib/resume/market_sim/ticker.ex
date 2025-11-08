@@ -16,6 +16,7 @@ defmodule Ticker do
 
   def handle_info(:tick, liveview_pid) do
     send(liveview_pid, :tick)
+    Process.send_after(liveview_pid, {:update_price, (:rand.uniform(10) - 5) / 100}, 500)
     schedule_tick()
     {:noreply, liveview_pid}
   end
