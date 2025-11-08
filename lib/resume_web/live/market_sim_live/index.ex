@@ -13,6 +13,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:strategies, @strategies)
       |> assign(:price_history, price_history)
       |> assign(:price, 100)
+      |> assign(:ticker_pid, nil)
     {:ok, socket}
   end
 
@@ -46,7 +47,29 @@ defmodule ResumeWeb.MarketSimLive.Index do
   end
 
   def handle_event("start_simulation", _, socket) do
-    Simulation.start_link()
+    case socket.assigns.ticker_pid do
+      nil ->
+        {:ok, pid} = Ticker.start_link(self())
+        socket = socket
+          |> assign(:ticker_pid, pid)
+        {:noreply, socket}
+      pid ->
+        Process.exit(pid, :kill)
+        socket = socket
+          |> assign(:ticker_pid, nil)
+        {:noreply, socket}
+    end
+  end
+
+  def handle_info(:tick, socket) do
+    new_price = socket.assigns.price + 1
+    new_price_history = [new_price | socket.assigns.price_history]
+    IO.puts("info")
+
+    socket = socket
+      |> assign(:price, new_price)
+      |> assign(:price_history, new_price_history)
+
     {:noreply, socket}
   end
 
@@ -88,7 +111,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def candles(%{lst: []} = assigns), do: ~H""
   def candles(%{lst: [_]} = assigns), do: ~H""
-  def candles(%{lst: [cur, next | rest], offset: offset, variance: variance } = assigns) do
+  def candles(%{lst: [cur, next | rest], offset: offset, variance: variance} = assigns) do
     height = 300
     val_mul = height / variance
     falling = cur > next
@@ -152,7 +175,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           <h2>Traders</h2>
           <.traders_list {assigns} />
         </div>
-        <.button phx-click="start_simulation">Start</.button>
+        <.button phx-click="start_simulation">{if @ticker_pid == nil do "Start" else "Stop" end}</.button>
       </div>
       <div class="flex">
         <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
