@@ -46,7 +46,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
     {:noreply, socket}
   end
 
-  def handle_event("start_simulation", _, socket) do
+  def handle_event("toggle_simulation", _, socket) do
     case socket.assigns.ticker_pid do
       nil ->
         {:ok, pid} = Ticker.start_link(self())
@@ -175,7 +175,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           <h2>Traders</h2>
           <.traders_list {assigns} />
         </div>
-        <.button phx-click="start_simulation">{if @ticker_pid == nil do "Start" else "Stop" end}</.button>
+        <.button phx-click="toggle_simulation">{if @ticker_pid == nil do "Start" else "Stop" end}</.button>
       </div>
       <div class="flex">
         <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
