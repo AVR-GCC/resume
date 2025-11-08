@@ -65,7 +65,6 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def handle_info(:tick, socket) do
     new_price = socket.assigns.price + 1
     new_price_history = [new_price | socket.assigns.price_history]
-    IO.puts("info")
 
     socket = socket
       |> assign(:price, new_price)
@@ -153,8 +152,8 @@ defmodule ResumeWeb.MarketSimLive.Index do
           {:erlang.float_to_binary(@offset / 1.0, decimals: 2)}
         </div>
       </div>
-      <div class="flex items-end w-[728px]">
-        <.candles lst={@price_history} offset={@offset} variance={@variance} />
+      <div class="flex justify-end items-end w-[728px]">
+        <.candles lst={Enum.reverse(@price_history)} offset={@offset} variance={@variance} />
       </div>
     </div>
     """
