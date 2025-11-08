@@ -17,6 +17,21 @@ defmodule ResumeWeb.MarketSimLive.Index do
     {:ok, socket}
   end
 
+  # External events
+
+  def handle_info(:tick, socket) do
+    new_price = socket.assigns.price + 1
+    new_price_history = [new_price | socket.assigns.price_history]
+
+    socket = socket
+      |> assign(:price, new_price)
+      |> assign(:price_history, new_price_history)
+
+    {:noreply, socket}
+  end
+
+  # Internal events
+
   def handle_event("remove_trader", %{"index" => index_str}, socket) do
     index = String.to_integer(index_str)
     new_traders = List.delete_at(socket.assigns.traders, index)
@@ -62,22 +77,12 @@ defmodule ResumeWeb.MarketSimLive.Index do
     end
   end
 
-  def handle_info(:tick, socket) do
-    new_price = socket.assigns.price + 1
-    new_price_history = [new_price | socket.assigns.price_history]
-
-    socket = socket
-      |> assign(:price, new_price)
-      |> assign(:price_history, new_price_history)
-
-    {:noreply, socket}
-  end
+  # Display components
 
   def get_name("momentum"), do: "Momentum"
   def get_name("mean_reversion"), do: "Mean reversion"
   def get_name("volitility_breakout"), do: "Volitility breakout"
   def get_name("external_sentiment"), do: "External sentiment"
-
 
   def new_trader(assigns) do
     ~H"""
