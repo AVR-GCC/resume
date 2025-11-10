@@ -81,7 +81,7 @@ defmodule OrderBook do
   end
 
   def add_order(pid, market, buy_or_sell, amount, price) do
-    {new_relevant_market, updated_price, _liveview_pid} = Agent.get_and_update(:order_book, fn state ->
+    {new_relevant_market, updated_price, liveview_pid} = Agent.get_and_update(:order_book, fn state ->
       relevant_market = Map.get(state, market, %{sell: [], buy: [], last_price: nil})
       {sell_or_buy, compare_consume, compare_insert} = if buy_or_sell == :buy do {:sell, &>=/2, &<=/2} else {:buy, &<=/2, &>=/2} end
       orders_to_consume = Map.get(relevant_market, sell_or_buy, [])
@@ -108,10 +108,7 @@ defmodule OrderBook do
   end
 
   def get_state do
-    state = Agent.get(:order_book, fn state -> state end)
-    mark = Map.get(state, :market)
-    price = Map.get(mark, :last_price)
-    get_orders_to_display(IO.inspect(mark), IO.inspect(price), 0.5, 10)
+    Agent.get(:order_book, fn state -> state end)
   end
 
   def load_example do
