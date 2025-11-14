@@ -104,7 +104,8 @@ defmodule OrderBook do
       {{new_relevant_market, final_price, Map.get(state, :liveview_pid)}, new_state}
     end)
     display_order = get_orders_to_display(new_relevant_market, updated_price, 0.5, 10)
-    send(liveview_pid, {:update_price, market, updated_price, display_order})
+    arg = {:update_price, updated_price, display_order, market}
+    send(liveview_pid, arg)
   end
 
   def get_state do

@@ -24,6 +24,7 @@ defmodule Simulation do
       # Livebook.Apps.Deployer,
       # # Node-local app manager watcher
       # Livebook.Apps.ManagerWatcher
+      {OrderBook, liveview_pid},
       {Ticker, liveview_pid} | trader_children
     ]
 

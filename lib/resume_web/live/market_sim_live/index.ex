@@ -4,6 +4,30 @@ defmodule ResumeWeb.MarketSimLive.Index do
   @strategies ["momentum", "mean_reversion", "volitility_breakout", "external_sentiment"]
 
   def mount(_params, _session, socket) do
+    volume = [
+      {105.5, 0, :sell},
+      {105.0, 0, :sell},
+      {104.5, 0, :sell},
+      {104.0, 0, :sell},
+      {103.5, 0, :sell},
+      {103.0, 0, :sell},
+      {102.5, 0, :sell},
+      {102.0, 0, :sell},
+      {101.5, 0, :sell},
+      {101.0, 0, :sell},
+      {100.5, 0, :sell},
+      {100.0, 0, :buy},
+      {99.5, 0, :buy},
+      {99.0, 0, :buy},
+      {98.5, 0, :buy},
+      {98.0, 0, :buy},
+      {98.0, 0, :buy},
+      {97.5, 0, :buy},
+      {97.0, 0, :buy},
+      {96.5, 0, :buy},
+      {96.0, 0, :buy},
+      {95.5, 0, :buy}
+    ]
     strategy_weights = Map.from_keys(@strategies, 0)
     socket = socket
       |> assign(:strategy_weights, strategy_weights)
@@ -12,16 +36,17 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:strategies, @strategies)
       |> assign(:price_history, [100])
       |> assign(:price, 100)
+      |> assign(:volumes, volume)
       |> assign(:simulation_pid, nil)
     {:ok, socket}
   end
 
   # External events
 
-  def handle_info({:update_price, delta_percentage}, socket) do
-    price = socket.assigns.price
+  def handle_info({:update_price, updated_price, display_order, _market}, socket) do
     socket = socket
-      |> assign(:price, price + delta_percentage * price)
+      |> assign(:price, updated_price)
+      |> assign(:volumes, display_order)
 
     {:noreply, socket}
   end
@@ -69,6 +94,10 @@ defmodule ResumeWeb.MarketSimLive.Index do
     case socket.assigns.simulation_pid do
       nil ->
         {:ok, pid} = Simulation.start_link(%{liveview_pid: self(), traders: socket.assigns.traders})
+        Task.start(fn -> 
+          Process.sleep(2000)
+          OrderBook.load_example()
+        end)
         socket = socket
           |> assign(:simulation_pid, pid)
         {:noreply, socket}
@@ -168,6 +197,43 @@ defmodule ResumeWeb.MarketSimLive.Index do
     """
   end
 
+  def volumes(%{lst: []} = assigns), do: ~H""
+  def volumes(%{lst: [{price, volume, buy_or_sell} | rest], scale: scale, last: last} = assigns) do
+    color = if buy_or_sell == :sell do "red" else "green" end
+    base_top_style = "display: flex; justify-content: flex-end; font-size: 11px; height: 14px; width: 100%;"
+    addition_top_style = if buy_or_sell != last do " border-top: 1px solid #cccccc" else "" end
+    top_style = base_top_style <> addition_top_style
+    style = "height: 14px; background-color: #{color}; width: #{scale * volume}px;"
+    assigns = assigns
+      |> assign(:style, style)
+      |> assign(:price, price)
+      |> assign(:lst, rest)
+      |> assign(:last, buy_or_sell)
+      |> assign(:top_style, top_style)
+    ~H"""
+    <div style={@top_style}>
+      <div style={@style} />
+      <div style="width: 30px; display: flex; justify-content: center; align-items: center;">{@price}</div>
+    </div>
+    <.volumes lst={@lst} scale={@scale} last={@last} />
+    """
+  end
+
+  def order_book(assigns) do
+    max_volume = assigns.volumes
+      |> Enum.map(fn {_, volume, _} -> volume end)
+      |> Enum.max()
+    scale = if max_volume && max_volume > 0, do: 300 / max_volume, else: 1
+    assigns = assigns
+      |> assign(:scale, scale)
+      |> assign(:last, :sell)
+    ~H"""
+    <div class="flex flex-col items-end h-[300px]">
+      <.volumes lst={@volumes} scale={@scale} last={@last} />
+    </div>
+    """
+  end
+
     # </.page>
   def render(assigns) do
     ~H"""
@@ -190,6 +256,10 @@ defmodule ResumeWeb.MarketSimLive.Index do
         <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
           <h2>History</h2>
           <.price_history {assigns} />
+        </div>
+        <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
+          <h2>Order Book</h2>
+          <.order_book {assigns} />
         </div>
       </div>
     """
