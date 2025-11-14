@@ -136,7 +136,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def traders_list(assigns) do
     ~H"""
-    <div class="flex flex-col h-96 overflow-y-auto">
+    <div class="flex flex-col h-80 overflow-y-auto">
       <.table id="traders" rows={Enum.with_index(@traders)}>
         <:col :for={strat <- @strategies} :let={{trader, _}} label={get_name(strat)}>
           <div class="flex justify-center">{Map.get(trader, strat)}</div>
@@ -190,7 +190,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           {:erlang.float_to_binary(@offset / 1.0, decimals: 2)}
         </div>
       </div>
-      <div class="flex justify-end items-end w-[728px]">
+      <div class="flex justify-end items-end w-[756px]">
         <.candles lst={Enum.reverse(@price_history)} offset={@offset} variance={@variance} />
       </div>
     </div>
@@ -213,7 +213,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
     ~H"""
     <div style={@top_style}>
       <div style={@style} />
-      <div style="width: 30px; display: flex; justify-content: center; align-items: center;">{@price}</div>
+      <div style="width: 35px; display: flex; justify-content: center; align-items: center;">{@price}</div>
     </div>
     <.volumes lst={@lst} scale={@scale} last={@last} />
     """
@@ -223,12 +223,12 @@ defmodule ResumeWeb.MarketSimLive.Index do
     max_volume = assigns.volumes
       |> Enum.map(fn {_, volume, _} -> volume end)
       |> Enum.max()
-    scale = if max_volume && max_volume > 0, do: 300 / max_volume, else: 1
+    scale = if max_volume && max_volume > 0, do: 360 / max_volume, else: 1
     assigns = assigns
       |> assign(:scale, scale)
       |> assign(:last, :sell)
     ~H"""
-    <div class="flex flex-col items-end h-[300px]">
+    <div class="flex flex-col items-end h-[300px] w-[420px]">
       <.volumes lst={@volumes} scale={@scale} last={@last} />
     </div>
     """
@@ -250,7 +250,6 @@ defmodule ResumeWeb.MarketSimLive.Index do
           <h2>Traders</h2>
           <.traders_list {assigns} />
         </div>
-        <.button phx-click="toggle_simulation" disabled={length(@traders) == 0}>{if @simulation_pid == nil do "Start" else "Stop" end}</.button>
       </div>
       <div class="flex">
         <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
@@ -261,6 +260,14 @@ defmodule ResumeWeb.MarketSimLive.Index do
           <h2>Order Book</h2>
           <.order_book {assigns} />
         </div>
+      </div>
+      <div class="flex justify-center w-full p-2">
+        <.button
+            phx-click="toggle_simulation"
+            disabled={length(@traders) == 0}
+        >
+          {if @simulation_pid == nil do "Start" else "Stop" end}
+        </.button>
       </div>
     """
   end
