@@ -232,7 +232,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
     base_top_style = "display: flex; justify-content: flex-end; font-size: 11px; height: 14px; width: 100%;"
     addition_top_style = if buy_or_sell != last do " border-top: 1px solid #cccccc" else "" end
     top_style = base_top_style <> addition_top_style
-    style = "height: 14px; background-color: #{color}; width: #{scale * volume}px;"
+    style = "height: 14px; background-color: #{color}; width: #{scale * volume}%;"
     assigns = assigns
       |> assign(:style, style)
       |> assign(:price, price)
@@ -252,12 +252,12 @@ defmodule ResumeWeb.MarketSimLive.Index do
     max_volume = assigns.volumes
       |> Enum.map(fn {_, volume, _} -> volume end)
       |> Enum.max()
-    scale = if max_volume && max_volume > 0, do: 360 / max_volume, else: 1
+    scale = if max_volume && max_volume > 0, do: 100 / max_volume, else: 1
     assigns = assigns
       |> assign(:scale, scale)
       |> assign(:last, :sell)
     ~H"""
-    <div class="flex-1 flex flex-col items-end h-[300px]">
+    <div class="flex flex-col items-end h-[300px] w-full">
       <.volumes lst={@volumes} scale={@scale} last={@last} />
     </div>
     """
