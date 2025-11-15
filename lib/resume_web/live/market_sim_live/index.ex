@@ -266,6 +266,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
     # </.page>
   def render(assigns) do
     ~H"""
+    <.page>
       <div class="flex justify-center h-max">
         <h1>Market Simulator</h1>
       </div>
@@ -298,6 +299,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           {if @simulation_pid == nil do "Start" else "Stop" end}
         </.button>
       </div>
+    </.page>
     """
   end
 end
