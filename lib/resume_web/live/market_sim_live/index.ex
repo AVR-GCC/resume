@@ -38,10 +38,21 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:price, 100)
       |> assign(:volumes, volume)
       |> assign(:simulation_pid, nil)
+      |> assign(:recent_trades, %{})
     {:ok, socket}
   end
 
   # External events
+
+  def handle_info({:trade, index, direction, price, amount}, socket) do
+    trade = %{direction: direction, price: price, amount: amount}
+    old_recent_trades = socket.assigns.recent_trades
+    recent_trades = Map.put(old_recent_trades, index, trade)
+    socket = socket
+      |> assign(:recent_trades, recent_trades)
+
+    {:noreply, socket}
+  end
 
   def handle_info({:update_price, updated_price, display_order, _market}, socket) do
     socket = socket
@@ -94,10 +105,6 @@ defmodule ResumeWeb.MarketSimLive.Index do
     case socket.assigns.simulation_pid do
       nil ->
         {:ok, pid} = Simulation.start_link(%{liveview_pid: self(), traders: socket.assigns.traders})
-        Task.start(fn -> 
-          Process.sleep(2000)
-          OrderBook.load_example()
-        end)
         socket = socket
           |> assign(:simulation_pid, pid)
         {:noreply, socket}
@@ -141,7 +148,29 @@ defmodule ResumeWeb.MarketSimLive.Index do
         <:col :for={strat <- @strategies} :let={{trader, _}} label={get_name(strat)}>
           <div class="flex justify-center">{Map.get(trader, strat)}</div>
         </:col>
-        <:col :let={{_, index}}><.icon name="hero-trash-mini" class="cursor-pointer" phx-click="remove_trader" phx-value-index={index} /></:col>
+        <:col :let={{_, index}}>
+          <.icon name="hero-trash-mini" class="cursor-pointer" phx-click="remove_trader" phx-value-index={index} />
+        </:col>
+        <:col :let={{_, index}} label="Direction">
+          <div :if={Map.has_key?(@recent_trades, index)}>
+            <div :if={get_in(@recent_trades, [index, :direction]) == :buy}>
+              <.icon name="hero-arrow-up" class="text-green-500" />
+            </div>
+            <div :if={get_in(@recent_trades, [index, :direction]) == :sell}>
+              <.icon name="hero-arrow-down" class="text-red-500" />
+            </div>
+          </div>
+        </:col>
+        <:col :let={{_, index}} label="Price">
+          <div :if={Map.has_key?(@recent_trades, index)}>
+            {get_in(@recent_trades, [index, :price])}
+          </div>
+        </:col>
+        <:col :let={{_, index}} label="Amount">
+          <div :if={Map.has_key?(@recent_trades, index)}>
+            {get_in(@recent_trades, [index, :amount])}
+          </div>
+        </:col>
       </.table>
     </div>
     """

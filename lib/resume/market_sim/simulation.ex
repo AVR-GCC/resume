@@ -12,7 +12,15 @@ defmodule Simulation do
       |> Enum.map(fn {strategy, index} -> %{
       id: {:trader, index},
       start: {
-        Trader, :start_link, [%{liveview_pid: liveview_pid, strategy: strategy}]
+        Trader,
+        :start_link,
+          [%{
+            strategy: strategy,
+            id: index,
+            liveview_pid: liveview_pid,
+            cash: 100,
+            asset_holdings: %{market: 1}
+          }]
       }
     } end)
     children = [
