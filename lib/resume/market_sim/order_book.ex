@@ -57,12 +57,12 @@ defmodule OrderBook do
   end
 
   defp get_orders_to_display(orders, price, increment, quantity) do
-    sell_prices = Stream.iterate(price, &(&1 + increment))
+    sell_prices = Stream.iterate(price, &(Float.round(&1 + increment, 2)))
       |> Enum.take(quantity + 1)
       |> orders_to_display(Map.get(orders, :sell, []), 0)
       |> Enum.reverse()
       |> Enum.map(fn {pr, amount} -> {pr, amount, :sell} end)
-    buy_prices = Stream.iterate(price, &(&1 - increment))
+    buy_prices = Stream.iterate(price, &(Float.round(&1 - increment, 2)))
       |> Enum.take(quantity + 1)
       |> orders_to_display(Map.get(orders, :buy, []), 0)
       |> Enum.map(fn {pr, amount} -> {pr, amount, :buy} end)
@@ -86,16 +86,11 @@ defmodule OrderBook do
       if last_price != nil do
         last_price
       else
-        buy_price = get_buy_price(market)
-        if buy_price != nil do
-          buy_price
-        else
-          sell_price = get_sell_price(market)
-          if sell_price != nil do
-            sell_price
-          else
-            100
-          end
+        case {get_buy_price(market), get_sell_price(market)} do
+          {nil, nil} -> 100
+          {nil, sell_price} -> sell_price
+          {buy_price, nil} -> buy_price
+          {buy_price, sell_price} -> Float.round((buy_price + sell_price) / 2, 2)
         end
       end
     end
@@ -124,12 +119,7 @@ defmodule OrderBook do
       new_state = Map.update(state, market, %{sell: [], buy: [], last_price: nil}, fn _ -> new_relevant_market end)
       {{new_relevant_market, final_price, Map.get(state, :liveview_pid)}, new_state}
     end)
-    use_price = Float.round(case {get_buy_price(new_relevant_market), get_sell_price(new_relevant_market)} do
-      {nil, _} -> updated_price
-      {_, nil} -> updated_price
-      {buy_price, sell_price} -> (buy_price + sell_price) / 2
-    end, 2)
-    display_order = get_orders_to_display(new_relevant_market, use_price, 0.5, 10)
+    display_order = get_orders_to_display(new_relevant_market, updated_price, 0.4, 10)
     arg = {:update_price, updated_price, display_order, market}
     send(liveview_pid, arg)
   end
