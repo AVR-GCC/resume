@@ -206,7 +206,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:variance, if max == min do 1 else max - min end)
 
     ~H"""
-    <div class="flex items-end h-[300px]">
+    <div class="flex-3 flex items-end h-[300px]">
       <div class="flex flex-col justify-between h-full mr-5">
         {:erlang.float_to_binary((@offset + @variance) / 1.0, decimals: 2)}
         <div>
@@ -257,7 +257,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:scale, scale)
       |> assign(:last, :sell)
     ~H"""
-    <div class="flex flex-col items-end h-[300px] w-[420px]">
+    <div class="flex-1 flex flex-col items-end h-[300px]">
       <.volumes lst={@volumes} scale={@scale} last={@last} />
     </div>
     """
@@ -281,11 +281,11 @@ defmodule ResumeWeb.MarketSimLive.Index do
         </div>
       </div>
       <div class="flex">
-        <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
+        <div class="flex-3 flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
           <h2>History</h2>
           <.price_history {assigns} />
         </div>
-        <div class="flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
+        <div class="flex-1 flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
           <h2>Order Book</h2>
           <.order_book {assigns} />
         </div>
