@@ -78,6 +78,7 @@ defmodule Trader do
     %{position: _cash_position, holding: cash_holding} = state.cash
     money_in_asset = asset_holding * current_price
     portion_in_asset = money_in_asset / (money_in_asset + cash_holding)
+    bullishness = get_sentiment(state.strategy, state.liveview_pid)
     is_buy = :rand.uniform() > portion_in_asset
     price = Float.round(:rand.normal(current_price, current_price / 10), 2)
     amount = Float.round(:rand.uniform() * if is_buy do cash_holding / current_price else asset_holding end, 2)
@@ -100,9 +101,95 @@ defmodule Trader do
     OrderBook.add_order(self(), asset, :sell, amount, price)
     send(state.liveview_pid, {:trade, state.id, :sell, price, amount})
     update_asset = fn %{holding: holding, position: position} -> %{holding: holding - amount, position: position + amount} end
-    dbg(state.assets)
     state |> Map.update!(:assets, fn assets -> 
            Map.update(assets, asset, %{holding: 0, position: 0}, update_asset) 
          end)
+  end
+
+  def get_sentiment(strategies, liveview_pid) do
+    total_weight =
+      strategies
+      |> Map.values()
+      |> Enum.sum()
+    bullishness =
+      strategies
+      |> Enum.map(fn {key, val} ->
+        if val > 0 do
+          sentiment = strategy_sentiment(key, liveview_pid)
+          val * IO.inspect(sentiment, label: key)
+        else
+          0
+        end
+      end)
+      |> Enum.sum()
+    bullishness / total_weight
+  end
+
+  defp get_price_history(liveview_pid) do
+    send(liveview_pid, {:price_history, self()})
+    receive do
+      {:price_history, value} -> value
+    end
+  end
+
+  defp sigmoid(x) do
+    cond do
+      x > 700 -> 1
+      x < -700 -> 0
+      true -> 1 / (1 + :math.exp(-x))
+    end
+  end
+
+  def strategy_sentiment(:momentum, liveview_pid) do
+    price_history = get_price_history(liveview_pid)
+    num_prices = length(price_history)
+    if num_prices == 0 do 0.5 else
+        index_to_compare = Enum.min([num_prices, 10])
+        old_price = Enum.at(price_history, index_to_compare - 1)
+        cur_price = List.first(price_history)
+        min = Enum.min([cur_price, old_price])
+        proportional_diff = (cur_price - old_price) / min
+        sigmoid(proportional_diff * 100)
+    end
+  end
+
+  def strategy_sentiment(:mean_reversion, liveview_pid) do
+    price_history = get_price_history(liveview_pid)
+    num_prices = length(price_history)
+    use_index = Enum.min([num_prices, 20]) 
+    avg = 
+      price_history
+      |> Enum.take(use_index)
+      |> Enum.sum()
+      |> Kernel./(use_index)
+    cur_price = List.first(price_history)
+    proportional_diff = ((cur_price - avg) / avg) * (use_index / 0.2)
+    sigmoid(proportional_diff)
+  end
+
+  def strategy_sentiment(:volitility_breakout, liveview_pid) do
+    price_history = get_price_history(liveview_pid)
+    num_prices = length(price_history)
+    use_index = Enum.min([num_prices, 20]) 
+    IO.inspect(price_history
+      |> Enum.take(use_index))
+    avg = 
+      price_history
+      |> Enum.take(use_index)
+      |> Enum.sum()
+      |> Kernel./(use_index)
+    IO.inspect(avg)
+    variance_sqrd = 
+      price_history
+      |> Enum.map(&(:math.pow(avg - &1, 2)))
+      |> Enum.sum()
+      |> Kernel./(num_prices * 1000)
+    IO.puts(variance_sqrd)
+    output = Enum.random([-1, 1]) * variance_sqrd
+    sigmoid(output)
+  end
+
+  def strategy_sentiment(:external_sentiment) do
+    1
   end
 end
