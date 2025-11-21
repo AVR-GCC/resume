@@ -76,16 +76,22 @@ defmodule Trader do
     current_price = OrderBook.get_price(asset)
     %{position: _asset_position, holding: asset_holding} = state.assets |> get_in([asset])
     %{position: _cash_position, holding: cash_holding} = state.cash
-    money_in_asset = asset_holding * current_price
-    portion_in_asset = money_in_asset / (money_in_asset + cash_holding)
     bullishness = get_sentiment(state.strategy, state.liveview_pid)
-    is_buy = :rand.uniform() > portion_in_asset
-    price = Float.round(:rand.normal(current_price, current_price / 10), 2)
-    amount = Float.round(:rand.uniform() * if is_buy do cash_holding / current_price else asset_holding end, 2)
-    if is_buy do
-      buy(state, asset, amount, price)
+    is_buy = bullishness > 0.5
+    intensity = if is_buy do bullishness * 2 - 1 else 1 - bullishness * 2 end
+    if intensity > 0.3 do
+      updated_intensity = (intensity - 0.3) / 7
+      total_holding = if is_buy do cash_holding / current_price else asset_holding end
+      amount = Float.round(total_holding * updated_intensity, 2)
+      price_param = if is_buy do 1 + updated_intensity else 1 - updated_intensity end
+      price = Float.round(current_price * price_param, 2)
+      if is_buy do
+        buy(state, asset, amount, price)
+      else
+        sell(state, asset, amount, price)
+      end
     else
-      sell(state, asset, amount, price)
+      state
     end
   end
 
