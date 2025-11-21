@@ -78,7 +78,7 @@ defmodule Trader do
     %{position: _cash_position, holding: cash_holding} = state.cash
     bullishness = get_sentiment(state.strategy, state.liveview_pid)
     is_buy = bullishness > 0.5
-    intensity = if is_buy do bullishness * 2 - 1 else 1 - bullishness * 2 end
+    intensity = (bullishness * 2 - 1) * (if is_buy do 1 else - 1 end)
     if intensity > 0.3 do
       updated_intensity = (intensity - 0.3) / 7
       total_holding = if is_buy do cash_holding / current_price else asset_holding end
