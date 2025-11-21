@@ -101,9 +101,7 @@ defmodule Trader do
     OrderBook.add_order(self(), asset, :sell, amount, price)
     send(state.liveview_pid, {:trade, state.id, :sell, price, amount})
     update_asset = fn %{holding: holding, position: position} -> %{holding: holding - amount, position: position + amount} end
-    state |> Map.update!(:assets, fn assets -> 
-           Map.update(assets, asset, %{holding: 0, position: 0}, update_asset) 
-         end)
+    state |> Map.update!(:assets, fn assets -> Map.update(assets, asset, %{holding: 0, position: 0}, update_asset) end)
   end
 
   def get_sentiment(strategies, liveview_pid) do
