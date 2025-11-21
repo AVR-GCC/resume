@@ -53,7 +53,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
   end
 
   def handle_info({:price_history, pid}, socket) do
-    send(pid, {:price_history, socket.assigns.price_history})
+    send(pid, {:price_history, [socket.assigns.price | socket.assigns.price_history]})
 
     {:noreply, socket}
   end
