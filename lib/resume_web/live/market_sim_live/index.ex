@@ -36,6 +36,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:strategies, @strategies)
       |> assign(:price_history, [100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100])
       |> assign(:price, 100)
+      |> assign(:external_sentiment, 0.5)
       |> assign(:volumes, volume)
       |> assign(:simulation_pid, nil)
       |> assign(:recent_trades, %{})
@@ -43,6 +44,13 @@ defmodule ResumeWeb.MarketSimLive.Index do
   end
 
   # External events
+
+  def handle_info({:external_sentiment, external_sentiment}, socket) do
+    socket = socket
+      |> assign(:external_sentiment, external_sentiment)
+
+    {:noreply, socket}
+  end
 
   def handle_info({:price_history, pid}, socket) do
     send(pid, {:price_history, socket.assigns.price_history})
@@ -274,6 +282,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
     <.page>
       <div class="flex justify-center h-max">
         <h1>Market Simulator</h1>
+        <p class="flex items-center pl-5 text-xs">External Sentiment: {@external_sentiment}</p>
       </div>
 
       <div class="flex">
