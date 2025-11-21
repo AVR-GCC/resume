@@ -1,7 +1,7 @@
 defmodule ResumeWeb.MarketSimLive.Index do
   use ResumeWeb, :live_view
 
-  @strategies ["momentum", "mean_reversion", "volitility_breakout", "external_sentiment"]
+  @strategies [:momentum, :mean_reversion, :volitility_breakout, :external_sentiment]
 
   def mount(_params, _session, socket) do
     volume = [
@@ -34,7 +34,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:traders, [])
       |> assign(:name, "")
       |> assign(:strategies, @strategies)
-      |> assign(:price_history, [100])
+      |> assign(:price_history, [100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100])
       |> assign(:price, 100)
       |> assign(:volumes, volume)
       |> assign(:simulation_pid, nil)
@@ -43,6 +43,12 @@ defmodule ResumeWeb.MarketSimLive.Index do
   end
 
   # External events
+
+  def handle_info({:price_history, pid}, socket) do
+    send(pid, {:price_history, socket.assigns.price_history})
+
+    {:noreply, socket}
+  end
 
   def handle_info({:trade, index, direction, price, amount}, socket) do
     trade = %{direction: direction, price: price, amount: amount}
@@ -95,7 +101,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def handle_event("change-weight", %{"strat" => strat, "direction" => direction}, socket) do
     old_strategy_weights = socket.assigns.strategy_weights
     increment = if direction == "up" do 1 else -1 end
-    strategy_weights = Map.update(old_strategy_weights, strat, 1, &(if &1 == 0 and direction == "down" do 0 else &1 + increment end))
+    strategy_weights = Map.update(old_strategy_weights, String.to_atom(strat), 1, &(if &1 == 0 and direction == "down" do 0 else &1 + increment end))
     socket = socket
       |> assign(:strategy_weights, strategy_weights)
     {:noreply, socket}
@@ -119,10 +125,10 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   # Display components
 
-  def get_name("momentum"), do: "Momentum"
-  def get_name("mean_reversion"), do: "Mean reversion"
-  def get_name("volitility_breakout"), do: "Volitility breakout"
-  def get_name("external_sentiment"), do: "External sentiment"
+  def get_name(:momentum), do: "Momentum"
+  def get_name(:mean_reversion), do: "Mean reversion"
+  def get_name(:volitility_breakout), do: "Volitility breakout"
+  def get_name(:external_sentiment), do: "External sentiment"
 
   def new_trader(assigns) do
     ~H"""
@@ -263,7 +269,6 @@ defmodule ResumeWeb.MarketSimLive.Index do
     """
   end
 
-    # </.page>
   def render(assigns) do
     ~H"""
     <.page>
