@@ -32,6 +32,10 @@ defmodule Simulation do
       # Livebook.Apps.Deployer,
       # # Node-local app manager watcher
       # Livebook.Apps.ManagerWatcher
+      {
+        ExternalSentimentGetter,
+        %{url: "https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain", sentiment: 0.5}
+      },
       {OrderBook, liveview_pid},
       {Ticker, liveview_pid} | trader_children
     ]

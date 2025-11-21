@@ -171,25 +171,23 @@ defmodule Trader do
     price_history = get_price_history(liveview_pid)
     num_prices = length(price_history)
     use_index = Enum.min([num_prices, 20]) 
-    IO.inspect(price_history
-      |> Enum.take(use_index))
+    price_history
+      |> Enum.take(use_index)
     avg = 
       price_history
       |> Enum.take(use_index)
       |> Enum.sum()
       |> Kernel./(use_index)
-    IO.inspect(avg)
     variance_sqrd = 
       price_history
       |> Enum.map(&(:math.pow(avg - &1, 2)))
       |> Enum.sum()
       |> Kernel./(num_prices * 1000)
-    IO.puts(variance_sqrd)
     output = Enum.random([-1, 1]) * variance_sqrd
     sigmoid(output)
   end
 
-  def strategy_sentiment(:external_sentiment) do
-    1
+  def strategy_sentiment(:external_sentiment, _liveview_pid) do
+    ExternalSentimentGetter.get_sentiment()
   end
 end
