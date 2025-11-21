@@ -171,7 +171,7 @@ defmodule Trader do
       |> Enum.sum()
       |> Kernel./(use_index)
     cur_price = List.first(price_history)
-    proportional_diff = ((cur_price - avg) / avg) * (use_index / 0.2)
+    proportional_diff = ((avg - cur_price) / avg) * (use_index / 0.2)
     sigmoid(proportional_diff)
   end
 
