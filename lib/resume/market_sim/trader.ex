@@ -186,6 +186,6 @@ defmodule Trader do
   end
 
   def strategy_sentiment(:external_sentiment, _liveview_pid) do
-    ExternalSentimentGetter.get_sentiment()
+    (ExternalSentimentGetter.get_sentiment() * 3 + :rand.uniform()) / 4
   end
 end
