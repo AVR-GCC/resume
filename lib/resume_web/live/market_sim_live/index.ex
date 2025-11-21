@@ -1,7 +1,7 @@
 defmodule ResumeWeb.MarketSimLive.Index do
   use ResumeWeb, :live_view
 
-  @strategies [:momentum, :mean_reversion, :volitility_breakout, :external_sentiment]
+  @strategies [:momentum, :mean_reversion, :volitility_breakout, :external_sentiment, :random]
 
   def mount(_params, _session, socket) do
     volume = [
@@ -137,6 +137,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def get_name(:mean_reversion), do: "Mean reversion"
   def get_name(:volitility_breakout), do: "Volitility breakout"
   def get_name(:external_sentiment), do: "External sentiment"
+  def get_name(:random), do: "Random"
 
   def new_trader(assigns) do
     ~H"""

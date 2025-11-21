@@ -144,6 +144,10 @@ defmodule Trader do
     end
   end
 
+  def strategy_sentiment(:random, _liveview_pid) do
+    :rand.uniform()
+  end
+
   def strategy_sentiment(:momentum, liveview_pid) do
     price_history = get_price_history(liveview_pid)
     num_prices = length(price_history)
