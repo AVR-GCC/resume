@@ -77,6 +77,15 @@ defmodule OrderBook do
   defp get_sell_price(market) do
     elem(List.first(Map.get(market, :sell, [{nil, nil, nil}]), {nil, nil, nil}), 1)
   end
+
+  defp get_center_price(market) do
+    case {get_buy_price(market), get_sell_price(market)} do
+      {nil, nil} -> 100
+      {nil, sell_price} -> sell_price
+      {buy_price, nil} -> buy_price
+      {buy_price, sell_price} -> Float.round((buy_price + sell_price) / 2, 2)
+    end
+  end
   
   defp get_final_price(market, new_price) do
     if new_price != nil do
@@ -86,12 +95,7 @@ defmodule OrderBook do
       if last_price != nil do
         last_price
       else
-        case {get_buy_price(market), get_sell_price(market)} do
-          {nil, nil} -> 100
-          {nil, sell_price} -> sell_price
-          {buy_price, nil} -> buy_price
-          {buy_price, sell_price} -> Float.round((buy_price + sell_price) / 2, 2)
-        end
+        get_center_price(market)
       end
     end
   end
@@ -119,7 +123,7 @@ defmodule OrderBook do
       new_state = Map.update(state, market, %{sell: [], buy: [], last_price: nil}, fn _ -> new_relevant_market end)
       {{new_relevant_market, final_price, Map.get(state, :liveview_pid)}, new_state}
     end)
-    display_order = get_orders_to_display(new_relevant_market, updated_price, 0.4, 10)
+    display_order = get_orders_to_display(new_relevant_market, get_center_price(new_relevant_market), 1.4, 10)
     arg = {:update_price, updated_price, display_order, market}
     send(liveview_pid, arg)
   end
