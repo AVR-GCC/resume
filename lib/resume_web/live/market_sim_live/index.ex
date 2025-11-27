@@ -34,7 +34,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:traders, [])
       |> assign(:name, "")
       |> assign(:strategies, @strategies)
-      |> assign(:price_history, [100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100, 1, 100])
+      |> assign(:price_history, [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])
       |> assign(:price, 100)
       |> assign(:external_sentiment, 0.5)
       |> assign(:volumes, volume)
