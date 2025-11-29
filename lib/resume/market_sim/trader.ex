@@ -98,13 +98,7 @@ defmodule Trader do
     bullishness = get_sentiment(state.strategy, state.liveview_pid)
     is_buy = bullishness > 0.5
 
-    intensity =
-      (bullishness * 2 - 1) *
-        if is_buy do
-          1
-        else
-          -1
-        end
+    intensity = abs(bullishness * 2 - 1)
 
     if intensity > 0.3 do
       updated_intensity = (intensity - 0.3) / 7
