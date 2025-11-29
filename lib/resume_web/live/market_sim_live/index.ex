@@ -28,8 +28,11 @@ defmodule ResumeWeb.MarketSimLive.Index do
       {96.0, 0, :buy},
       {95.5, 0, :buy}
     ]
+
     strategy_weights = Map.from_keys(@strategies, 0)
-    socket = socket
+
+    socket =
+      socket
       |> assign(:strategy_weights, strategy_weights)
       |> assign(:traders, [])
       |> assign(:name, "")
@@ -40,13 +43,15 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:volumes, volume)
       |> assign(:simulation_pid, nil)
       |> assign(:recent_trades, %{})
+
     {:ok, socket}
   end
 
   # External events
 
   def handle_info({:external_sentiment, external_sentiment}, socket) do
-    socket = socket
+    socket =
+      socket
       |> assign(:external_sentiment, external_sentiment)
 
     {:noreply, socket}
@@ -62,14 +67,17 @@ defmodule ResumeWeb.MarketSimLive.Index do
     trade = %{direction: direction, price: price, amount: amount}
     old_recent_trades = socket.assigns.recent_trades
     recent_trades = Map.put(old_recent_trades, index, trade)
-    socket = socket
+
+    socket =
+      socket
       |> assign(:recent_trades, recent_trades)
 
     {:noreply, socket}
   end
 
   def handle_info({:update_price, updated_price, display_order, _market}, socket) do
-    socket = socket
+    socket =
+      socket
       |> assign(:price, updated_price)
       |> assign(:volumes, display_order)
 
@@ -79,7 +87,8 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def handle_info(:tick, socket) do
     new_price_history = [socket.assigns.price | socket.assigns.price_history]
 
-    socket = socket
+    socket =
+      socket
       |> assign(:price_history, new_price_history)
 
     {:noreply, socket}
@@ -90,8 +99,11 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def handle_event("remove_trader", %{"index" => index_str}, socket) do
     index = String.to_integer(index_str)
     new_traders = List.delete_at(socket.assigns.traders, index)
-    socket = socket
+
+    socket =
+      socket
       |> assign(:traders, new_traders)
+
     {:noreply, socket}
   end
 
@@ -99,34 +111,65 @@ defmodule ResumeWeb.MarketSimLive.Index do
     strategy_weights = socket.assigns.strategy_weights
     new_strategy_weights = Map.from_keys(@strategies, 0)
     new_traders = [strategy_weights | socket.assigns.traders]
-    socket = socket
+
+    socket =
+      socket
       |> assign(:traders, new_traders)
       |> assign(:strategy_weights, new_strategy_weights)
       |> assign(:name, "")
+
     {:noreply, socket}
   end
 
   def handle_event("change-weight", %{"strat" => strat, "direction" => direction}, socket) do
     old_strategy_weights = socket.assigns.strategy_weights
-    increment = if direction == "up" do 1 else -1 end
-    strategy_weights = Map.update(old_strategy_weights, String.to_atom(strat), 1, &(if &1 == 0 and direction == "down" do 0 else &1 + increment end))
-    socket = socket
+
+    increment =
+      if direction == "up" do
+        1
+      else
+        -1
+      end
+
+    strategy_weights =
+      Map.update(
+        old_strategy_weights,
+        String.to_atom(strat),
+        1,
+        &if &1 == 0 and direction == "down" do
+          0
+        else
+          &1 + increment
+        end
+      )
+
+    socket =
+      socket
       |> assign(:strategy_weights, strategy_weights)
+
     {:noreply, socket}
   end
 
   def handle_event("toggle_simulation", _, socket) do
     case socket.assigns.simulation_pid do
       nil ->
-        {:ok, pid} = Simulation.start_link(%{liveview_pid: self(), traders: socket.assigns.traders})
-        socket = socket
+        {:ok, pid} =
+          Simulation.start_link(%{liveview_pid: self(), traders: socket.assigns.traders})
+
+        socket =
+          socket
           |> assign(:simulation_pid, pid)
+
         {:noreply, socket}
+
       pid ->
         Process.unlink(pid)
         Process.exit(pid, :shutdown)
-        socket = socket
+
+        socket =
+          socket
           |> assign(:simulation_pid, nil)
+
         {:noreply, socket}
     end
   end
@@ -141,18 +184,37 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def new_trader(assigns) do
     ~H"""
-      <.table id="traders" rows={@strategies}>
-        <:col :let={strat}><div>{get_name(strat)}</div></:col>
-        <:col :let={strat}><div>{@strategy_weights[strat]}</div></:col>
-        <:col :let={strat}>
-          <div class="flex flex-col cursor-pointer">
-            <.icon name="hero-arrow-up-mini" phx-click="change-weight" phx-value-direction="up" phx-value-strat={strat} />
-            <.icon name="hero-arrow-down-mini" phx-click="change-weight" phx-value-direction="down" phx-value-strat={strat} />
-          </div>
-        </:col>
-      </.table>
-      <div class="h-7" />
-      <.button phx-click="add_trader" disabled={Enum.all?(@strategy_weights, fn {_, val} -> val == 0 end)}>Add</.button>
+    <.table id="traders" rows={@strategies}>
+      <:col :let={strat}>
+        <div>{get_name(strat)}</div>
+      </:col>
+      <:col :let={strat}>
+        <div>{@strategy_weights[strat]}</div>
+      </:col>
+      <:col :let={strat}>
+        <div class="flex flex-col cursor-pointer">
+          <.icon
+            name="hero-arrow-up-mini"
+            phx-click="change-weight"
+            phx-value-direction="up"
+            phx-value-strat={strat}
+          />
+          <.icon
+            name="hero-arrow-down-mini"
+            phx-click="change-weight"
+            phx-value-direction="down"
+            phx-value-strat={strat}
+          />
+        </div>
+      </:col>
+    </.table>
+    <div class="h-7" />
+    <.button
+      phx-click="add_trader"
+      disabled={Enum.all?(@strategy_weights, fn {_, val} -> val == 0 end)}
+    >
+      Add
+    </.button>
     """
   end
 
@@ -160,11 +222,16 @@ defmodule ResumeWeb.MarketSimLive.Index do
     ~H"""
     <div class="flex flex-col h-80 overflow-y-auto">
       <.table id="traders" rows={Enum.with_index(@traders)}>
-        <:col :for={strat <- @strategies} :let={{trader, _}} label={get_name(strat)}>
+        <:col :let={{trader, _}} :for={strat <- @strategies} label={get_name(strat)}>
           <div class="flex justify-center">{Map.get(trader, strat)}</div>
         </:col>
         <:col :let={{_, index}}>
-          <.icon name="hero-trash-mini" class="cursor-pointer" phx-click="remove_trader" phx-value-index={index} />
+          <.icon
+            name="hero-trash-mini"
+            class="cursor-pointer"
+            phx-click="remove_trader"
+            phx-value-index={index}
+          />
         </:col>
         <:col :let={{_, index}} label="Direction">
           <div :if={Map.has_key?(@recent_trades, index)}>
@@ -193,17 +260,36 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def candles(%{lst: []} = assigns), do: ~H""
   def candles(%{lst: [_]} = assigns), do: ~H""
+
   def candles(%{lst: [cur, next | rest], offset: offset, variance: variance} = assigns) do
     height = 300
     val_mul = height / variance
     falling = cur > next
-    color = if falling do "red" else "green" end
+
+    color =
+      if falling do
+        "red"
+      else
+        "green"
+      end
+
     normalize = fn val -> round(val * val_mul) end
-    {top, bottom} = if falling do {normalize.(cur), normalize.(next)} else {normalize.(next), normalize.(cur)} end
-    style = "width: 8px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom - normalize.(offset)}px; border-radius: 2px;"
-    assigns = assigns
+
+    {top, bottom} =
+      if falling do
+        {normalize.(cur), normalize.(next)}
+      else
+        {normalize.(next), normalize.(cur)}
+      end
+
+    style =
+      "width: 8px; background-color: #{color}; height: #{top - bottom}px; margin-bottom: #{bottom - normalize.(offset)}px; border-radius: 2px;"
+
+    assigns =
+      assigns
       |> assign(:style, style)
       |> assign(:lst, [next | rest])
+
     ~H"""
     <div style={@style} />
     <.candles {assigns} lst={@lst} />
@@ -211,14 +297,24 @@ defmodule ResumeWeb.MarketSimLive.Index do
   end
 
   def price_history(assigns) do
-    price_history = [assigns.price | assigns.price_history]
+    price_history =
+      [assigns.price | assigns.price_history]
       |> Enum.take(100)
 
     {min, max} = Enum.min_max(price_history, fn -> {0, 1} end)
-    assigns = assigns
+
+    assigns =
+      assigns
       |> assign(:price_history, price_history)
       |> assign(:offset, min)
-      |> assign(:variance, if max == min do 1 else max - min end)
+      |> assign(
+        :variance,
+        if max == min do
+          1
+        else
+          max - min
+        end
+      )
 
     ~H"""
     <div class="flex-3 flex items-end h-[300px]">
@@ -242,35 +338,60 @@ defmodule ResumeWeb.MarketSimLive.Index do
   end
 
   def volumes(%{lst: []} = assigns), do: ~H""
+
   def volumes(%{lst: [{price, volume, buy_or_sell} | rest], scale: scale, last: last} = assigns) do
-    color = if buy_or_sell == :sell do "red" else "green" end
-    base_top_style = "display: flex; justify-content: flex-end; font-size: 11px; height: 14px; width: 100%;"
-    addition_top_style = if buy_or_sell != last do " border-top: 1px solid #cccccc" else "" end
+    color =
+      if buy_or_sell == :sell do
+        "red"
+      else
+        "green"
+      end
+
+    base_top_style =
+      "display: flex; justify-content: flex-end; font-size: 11px; height: 14px; width: 100%;"
+
+    addition_top_style =
+      if buy_or_sell != last do
+        " border-top: 1px solid #cccccc"
+      else
+        ""
+      end
+
     top_style = base_top_style <> addition_top_style
     style = "height: 14px; background-color: #{color}; width: #{scale * volume}%;"
-    assigns = assigns
+
+    assigns =
+      assigns
       |> assign(:style, style)
       |> assign(:price, price)
       |> assign(:lst, rest)
       |> assign(:last, buy_or_sell)
       |> assign(:top_style, top_style)
+
     ~H"""
     <div style={@top_style}>
       <div style={@style} />
-      <div style="width: 35px; display: flex; justify-content: center; align-items: center;">{@price}</div>
+      <div style="width: 35px; display: flex; justify-content: center; align-items: center;">
+        {@price}
+      </div>
     </div>
     <.volumes lst={@lst} scale={@scale} last={@last} />
     """
   end
 
   def order_book(assigns) do
-    max_volume = assigns.volumes
+    max_volume =
+      assigns.volumes
       |> Enum.map(fn {_, volume, _} -> volume end)
       |> Enum.max()
+
     scale = if max_volume && max_volume > 0, do: 100 / max_volume, else: 1
-    assigns = assigns
+
+    assigns =
+      assigns
       |> assign(:scale, scale)
       |> assign(:last, :sell)
+
     ~H"""
     <div class="flex flex-col items-end h-[300px] w-full">
       <.volumes lst={@volumes} scale={@scale} last={@last} />
@@ -308,10 +429,14 @@ defmodule ResumeWeb.MarketSimLive.Index do
       </div>
       <div class="flex justify-center w-full p-2">
         <.button
-            phx-click="toggle_simulation"
-            disabled={length(@traders) == 0}
+          phx-click="toggle_simulation"
+          disabled={length(@traders) == 0}
         >
-          {if @simulation_pid == nil do "Start" else "Stop" end}
+          {if @simulation_pid == nil do
+            "Start"
+          else
+            "Stop"
+          end}
         </.button>
       </div>
     </.page>

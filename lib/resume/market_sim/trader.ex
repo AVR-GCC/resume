@@ -13,9 +13,11 @@ defmodule Trader do
       id: id,
       liveview_pid: liveview_pid,
       cash: cash,
-      asset_holdings: asset_holdings,
+      asset_holdings: asset_holdings
     } = args
-    assets = asset_holdings
+
+    assets =
+      asset_holdings
       |> Enum.map(fn {key, value} -> {key, %{position: 0.0, holding: value}} end)
       |> Enum.into(%{})
 
@@ -34,29 +36,46 @@ defmodule Trader do
     schedule_decision()
     {:ok, state}
   end
-  
+
   def handle_info({:order_fulfilled, :buy, asset, amount, price}, state) do
-    update_asset = fn %{holding: holding, position: position} -> %{holding: holding + amount, position: position} end
+    update_asset = fn %{holding: holding, position: position} ->
+      %{holding: holding + amount, position: position}
+    end
+
     money = amount * price
-    update_cash = fn %{holding: holding, position: position} -> %{holding: holding, position: position - money} end
-    new_state = state
-      |> Map.update!(:assets, fn assets -> 
-           Map.update(assets, asset, %{holding: 0, position: 0}, update_asset) 
-         end)
+
+    update_cash = fn %{holding: holding, position: position} ->
+      %{holding: holding, position: position - money}
+    end
+
+    new_state =
+      state
+      |> Map.update!(:assets, fn assets ->
+        Map.update(assets, asset, %{holding: 0, position: 0}, update_asset)
+      end)
       |> Map.update!(:cash, update_cash)
+
     {:noreply, new_state}
   end
-  
+
   def handle_info({:order_fulfilled, :sell, asset, amount, price}, state) do
     money = amount * price
-    update_cash = fn %{holding: holding, position: position} -> %{holding: holding + money, position: position} end
-    update_asset = fn %{holding: holding, position: position} -> %{holding: holding, position: position - amount} end
 
-    new_state = state
-      |> Map.update!(:assets, fn assets -> 
-           Map.update(assets, asset, %{holding: 0, position: 0}, update_asset) 
-         end)
+    update_cash = fn %{holding: holding, position: position} ->
+      %{holding: holding + money, position: position}
+    end
+
+    update_asset = fn %{holding: holding, position: position} ->
+      %{holding: holding, position: position - amount}
+    end
+
+    new_state =
+      state
+      |> Map.update!(:assets, fn assets ->
+        Map.update(assets, asset, %{holding: 0, position: 0}, update_asset)
+      end)
       |> Map.update!(:cash, update_cash)
+
     {:noreply, new_state}
   end
 
@@ -65,7 +84,7 @@ defmodule Trader do
     schedule_decision()
     {:noreply, new_state}
   end
-  
+
   def schedule_decision() do
     milis = :rand.uniform(2500) + 500
     Process.send_after(self(), :make_decision, milis)
@@ -78,13 +97,36 @@ defmodule Trader do
     %{position: _cash_position, holding: cash_holding} = state.cash
     bullishness = get_sentiment(state.strategy, state.liveview_pid)
     is_buy = bullishness > 0.5
-    intensity = (bullishness * 2 - 1) * (if is_buy do 1 else - 1 end)
+
+    intensity =
+      (bullishness * 2 - 1) *
+        if is_buy do
+          1
+        else
+          -1
+        end
+
     if intensity > 0.3 do
       updated_intensity = (intensity - 0.3) / 7
-      total_holding = if is_buy do cash_holding / current_price else asset_holding end
+
+      total_holding =
+        if is_buy do
+          cash_holding / current_price
+        else
+          asset_holding
+        end
+
       amount = Float.round(total_holding * updated_intensity, 2)
-      price_param = if is_buy do 1 + updated_intensity else 1 - updated_intensity end
+
+      price_param =
+        if is_buy do
+          1 + updated_intensity
+        else
+          1 - updated_intensity
+        end
+
       price = Float.round(current_price * price_param, 2)
+
       if is_buy do
         buy(state, asset, amount, price)
       else
@@ -99,15 +141,26 @@ defmodule Trader do
     OrderBook.add_order(self(), asset, :buy, amount, price)
     send(state.liveview_pid, {:trade, state.id, :buy, price, amount})
     money = amount * price
-    update_cash = fn %{holding: holding, position: position} -> %{holding: holding - money, position: position + money} end
+
+    update_cash = fn %{holding: holding, position: position} ->
+      %{holding: holding - money, position: position + money}
+    end
+
     state |> Map.update!(:cash, update_cash)
   end
 
   def sell(state, asset, amount, price) do
     OrderBook.add_order(self(), asset, :sell, amount, price)
     send(state.liveview_pid, {:trade, state.id, :sell, price, amount})
-    update_asset = fn %{holding: holding, position: position} -> %{holding: holding - amount, position: position + amount} end
-    state |> Map.update!(:assets, fn assets -> Map.update(assets, asset, %{holding: 0, position: 0}, update_asset) end)
+
+    update_asset = fn %{holding: holding, position: position} ->
+      %{holding: holding - amount, position: position + amount}
+    end
+
+    state
+    |> Map.update!(:assets, fn assets ->
+      Map.update(assets, asset, %{holding: 0, position: 0}, update_asset)
+    end)
   end
 
   def get_sentiment(strategies, liveview_pid) do
@@ -115,6 +168,7 @@ defmodule Trader do
       strategies
       |> Map.values()
       |> Enum.sum()
+
     bullishness =
       strategies
       |> Enum.map(fn {key, val} ->
@@ -126,11 +180,13 @@ defmodule Trader do
         end
       end)
       |> Enum.sum()
+
     bullishness / total_weight
   end
 
   defp get_price_history(liveview_pid) do
     send(liveview_pid, {:price_history, self()})
+
     receive do
       {:price_history, value} -> value
     end
@@ -151,46 +207,55 @@ defmodule Trader do
   def strategy_sentiment(:momentum, liveview_pid) do
     price_history = get_price_history(liveview_pid)
     num_prices = length(price_history)
-    if num_prices == 0 do 0.5 else
-        index_to_compare = Enum.min([num_prices, 10])
-        old_price = Enum.at(price_history, index_to_compare - 1)
-        cur_price = List.first(price_history)
-        min = Enum.min([cur_price, old_price])
-        proportional_diff = (cur_price - old_price) / min
-        sigmoid(proportional_diff * 100)
+
+    if num_prices == 0 do
+      0.5
+    else
+      index_to_compare = Enum.min([num_prices, 10])
+      old_price = Enum.at(price_history, index_to_compare - 1)
+      cur_price = List.first(price_history)
+      min = Enum.min([cur_price, old_price])
+      proportional_diff = (cur_price - old_price) / min
+      sigmoid(proportional_diff * 100)
     end
   end
 
   def strategy_sentiment(:mean_reversion, liveview_pid) do
     price_history = get_price_history(liveview_pid)
     num_prices = length(price_history)
-    use_index = Enum.min([num_prices, 20]) 
-    avg = 
+    use_index = Enum.min([num_prices, 20])
+
+    avg =
       price_history
       |> Enum.take(use_index)
       |> Enum.sum()
       |> Kernel./(use_index)
+
     cur_price = List.first(price_history)
-    proportional_diff = ((avg - cur_price) / avg) * (use_index / 0.2)
+    proportional_diff = (avg - cur_price) / avg * (use_index / 0.2)
     sigmoid(proportional_diff)
   end
 
   def strategy_sentiment(:volitility_breakout, liveview_pid) do
     price_history = get_price_history(liveview_pid)
     num_prices = length(price_history)
-    use_index = Enum.min([num_prices, 20]) 
+    use_index = Enum.min([num_prices, 20])
+
     price_history
-      |> Enum.take(use_index)
-    avg = 
+    |> Enum.take(use_index)
+
+    avg =
       price_history
       |> Enum.take(use_index)
       |> Enum.sum()
       |> Kernel./(use_index)
-    variance_sqrd = 
+
+    variance_sqrd =
       price_history
-      |> Enum.map(&(:math.pow(avg - &1, 2)))
+      |> Enum.map(&:math.pow(avg - &1, 2))
       |> Enum.sum()
       |> Kernel./(num_prices * 1000)
+
     output = Enum.random([-1, 1]) * variance_sqrd
     sigmoid(output)
   end

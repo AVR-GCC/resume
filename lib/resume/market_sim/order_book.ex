@@ -9,12 +9,27 @@ defmodule OrderBook do
   # }
 
   def start_link(liveview_pid) do
-    Agent.start_link(fn -> %{market: %{sell: [], buy: [], last_price: nil}, liveview_pid: liveview_pid} end, name: :order_book)
+    Agent.start_link(
+      fn -> %{market: %{sell: [], buy: [], last_price: nil}, liveview_pid: liveview_pid} end,
+      name: :order_book
+    )
   end
 
   defp consume_orders(_, last_price, order, []), do: {order, [], last_price}
-  defp consume_orders(buy_or_sell, last_price, {amount, price, pid} = order, [{con_amount, con_price, con_pid} | rest] = orders) do
-    compare = if buy_or_sell == :buy do &>=/2 else &<=/2 end
+
+  defp consume_orders(
+         buy_or_sell,
+         last_price,
+         {amount, price, pid} = order,
+         [{con_amount, con_price, con_pid} | rest] = orders
+       ) do
+    compare =
+      if buy_or_sell == :buy do
+        &>=/2
+      else
+        &<=/2
+      end
+
     if compare.(price, con_price) do
       if amount > con_amount do
         send(con_pid, {:order_fulfilled, buy_or_sell, :market, con_amount, con_price})
@@ -23,7 +38,14 @@ defmodule OrderBook do
       else
         send(con_pid, {:order_fulfilled, buy_or_sell, :market, amount, con_price})
         send(pid, {:order_fulfilled, buy_or_sell, :market, amount, con_price})
-        updated_orders = if con_amount == amount do rest else [{con_amount - amount, con_price, con_pid} | rest] end
+
+        updated_orders =
+          if con_amount == amount do
+            rest
+          else
+            [{con_amount - amount, con_price, con_pid} | rest]
+          end
+
         {:consumed, updated_orders, con_price}
       end
     else
@@ -32,7 +54,12 @@ defmodule OrderBook do
   end
 
   defp place_order(_, order, []), do: [order]
-  defp place_order(compare, {_, price, _} = order, [{_, cur_price, _} = cur_order | rest] = orders) do
+
+  defp place_order(
+         compare,
+         {_, price, _} = order,
+         [{_, cur_price, _} = cur_order | rest] = orders
+       ) do
     if compare.(price, cur_price) do
       [cur_order | place_order(compare, order, rest)]
     else
@@ -43,26 +70,35 @@ defmodule OrderBook do
   defp orders_to_display([p | rest], [], acc), do: [{p, acc} | orders_to_display(rest, [], 0)]
   defp orders_to_display([], _, _), do: []
   defp orders_to_display([_], _, _), do: []
+
   defp orders_to_display(
-    [left_price, right_price | rest_prices] = prices,
-    [{amount, price, _pid} | rest_orders] = orders,
-    acc
-  ) do
-    in_bucket = (left_price <= price && price < right_price) || (left_price >= price && price > right_price)
-    if (in_bucket) do
+         [left_price, right_price | rest_prices] = prices,
+         [{amount, price, _pid} | rest_orders] = orders,
+         acc
+       ) do
+    in_bucket =
+      (left_price <= price && price < right_price) || (left_price >= price && price > right_price)
+
+    if in_bucket do
       orders_to_display(prices, rest_orders, acc + amount)
     else
-      [{Enum.min([left_price, right_price]), acc} | orders_to_display([right_price | rest_prices], orders, 0)]
+      [
+        {Enum.min([left_price, right_price]), acc}
+        | orders_to_display([right_price | rest_prices], orders, 0)
+      ]
     end
   end
 
   defp get_orders_to_display(orders, price, increment, quantity) do
-    sell_prices = Stream.iterate(price, &(Float.round(&1 + increment, 2)))
+    sell_prices =
+      Stream.iterate(price, &Float.round(&1 + increment, 2))
       |> Enum.take(quantity + 1)
       |> orders_to_display(Map.get(orders, :sell, []), 0)
       |> Enum.reverse()
       |> Enum.map(fn {pr, amount} -> {pr, amount, :sell} end)
-    buy_prices = Stream.iterate(price, &(Float.round(&1 - increment, 2)))
+
+    buy_prices =
+      Stream.iterate(price, &Float.round(&1 - increment, 2))
       |> Enum.take(quantity + 1)
       |> orders_to_display(Map.get(orders, :buy, []), 0)
       |> Enum.map(fn {pr, amount} -> {pr, amount, :buy} end)
@@ -86,12 +122,13 @@ defmodule OrderBook do
       {buy_price, sell_price} -> Float.round((buy_price + sell_price) / 2, 2)
     end
   end
-  
+
   defp get_final_price(market, new_price) do
     if new_price != nil do
       new_price
     else
       last_price = Map.get(market, :last_price)
+
       if last_price != nil do
         last_price
       else
@@ -101,29 +138,54 @@ defmodule OrderBook do
   end
 
   def add_order(pid, market, buy_or_sell, amount, price) do
-    {new_relevant_market, updated_price, liveview_pid} = Agent.get_and_update(:order_book, fn state ->
-      relevant_market = Map.get(state, market, %{sell: [], buy: [], last_price: nil})
-      {sell_or_buy, compare_insert} = if buy_or_sell == :buy do {:sell, &<=/2} else {:buy, &>=/2} end
-      orders_to_consume = Map.get(relevant_market, sell_or_buy, [])
-      {new_relevant_market, new_price} = case consume_orders(buy_or_sell, nil, {amount, price, pid}, orders_to_consume) do
-        {:consumed, new_orders_to_consume, new_price} -> 
-          new_relevant_market = relevant_market
-            |> Map.update(sell_or_buy, [], fn _ -> new_orders_to_consume end)
-            |> Map.update(:last_price, nil, fn _ -> new_price end) 
-          {new_relevant_market, new_price}
-        {final_order, new_orders_to_consume, new_price} -> 
-          new_relevant_market = relevant_market
-            |> Map.update(sell_or_buy, [], fn _ -> new_orders_to_consume end)
-            |> Map.update(buy_or_sell, [], fn old_orders -> place_order(compare_insert, final_order, old_orders) end)
-            |> Map.update(:last_price, nil, fn _ -> new_price end) 
-          {new_relevant_market, new_price}
-      end
-      final_price = get_final_price(new_relevant_market, new_price)
+    {new_relevant_market, updated_price, liveview_pid} =
+      Agent.get_and_update(:order_book, fn state ->
+        relevant_market = Map.get(state, market, %{sell: [], buy: [], last_price: nil})
 
-      new_state = Map.update(state, market, %{sell: [], buy: [], last_price: nil}, fn _ -> new_relevant_market end)
-      {{new_relevant_market, final_price, Map.get(state, :liveview_pid)}, new_state}
-    end)
-    display_order = get_orders_to_display(new_relevant_market, get_center_price(new_relevant_market), 1.4, 10)
+        {sell_or_buy, compare_insert} =
+          if buy_or_sell == :buy do
+            {:sell, &<=/2}
+          else
+            {:buy, &>=/2}
+          end
+
+        orders_to_consume = Map.get(relevant_market, sell_or_buy, [])
+
+        {new_relevant_market, new_price} =
+          case consume_orders(buy_or_sell, nil, {amount, price, pid}, orders_to_consume) do
+            {:consumed, new_orders_to_consume, new_price} ->
+              new_relevant_market =
+                relevant_market
+                |> Map.update(sell_or_buy, [], fn _ -> new_orders_to_consume end)
+                |> Map.update(:last_price, nil, fn _ -> new_price end)
+
+              {new_relevant_market, new_price}
+
+            {final_order, new_orders_to_consume, new_price} ->
+              new_relevant_market =
+                relevant_market
+                |> Map.update(sell_or_buy, [], fn _ -> new_orders_to_consume end)
+                |> Map.update(buy_or_sell, [], fn old_orders ->
+                  place_order(compare_insert, final_order, old_orders)
+                end)
+                |> Map.update(:last_price, nil, fn _ -> new_price end)
+
+              {new_relevant_market, new_price}
+          end
+
+        final_price = get_final_price(new_relevant_market, new_price)
+
+        new_state =
+          Map.update(state, market, %{sell: [], buy: [], last_price: nil}, fn _ ->
+            new_relevant_market
+          end)
+
+        {{new_relevant_market, final_price, Map.get(state, :liveview_pid)}, new_state}
+      end)
+
+    display_order =
+      get_orders_to_display(new_relevant_market, get_center_price(new_relevant_market), 1.4, 10)
+
     arg = {:update_price, updated_price, display_order, market}
     send(liveview_pid, arg)
   end

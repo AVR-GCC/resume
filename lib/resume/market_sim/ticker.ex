@@ -16,9 +16,11 @@ defmodule Ticker do
 
   def handle_info(:tick, %{liveview_pid: liveview_pid, counter: counter}) do
     send(liveview_pid, :tick)
-    if (Integer.mod(counter, 5) == 0) do
+
+    if Integer.mod(counter, 5) == 0 do
       ExternalSentimentGetter.update_sentiment()
     end
+
     schedule_tick()
     {:noreply, %{liveview_pid: liveview_pid, counter: counter + 1}}
   end

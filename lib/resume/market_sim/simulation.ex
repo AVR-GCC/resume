@@ -7,22 +7,28 @@ defmodule Simulation do
 
   @impl true
   def init(%{liveview_pid: liveview_pid, traders: traders}) do
-    trader_children = traders
+    trader_children =
+      traders
       |> Enum.with_index()
-      |> Enum.map(fn {strategy, index} -> %{
-      id: {:trader, index},
-      start: {
-        Trader,
-        :start_link,
-          [%{
-            strategy: strategy,
-            id: index,
-            liveview_pid: liveview_pid,
-            cash: 100,
-            asset_holdings: %{market: 1}
-          }]
-      }
-    } end)
+      |> Enum.map(fn {strategy, index} ->
+        %{
+          id: {:trader, index},
+          start: {
+            Trader,
+            :start_link,
+            [
+              %{
+                strategy: strategy,
+                id: index,
+                liveview_pid: liveview_pid,
+                cash: 100,
+                asset_holdings: %{market: 1}
+              }
+            ]
+          }
+        }
+      end)
+
     children = [
       # # Start the supervisor dynamically managing apps
       # {DynamicSupervisor, name: Livebook.AppSupervisor, strategy: :one_for_one},
