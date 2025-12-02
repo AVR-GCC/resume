@@ -377,7 +377,7 @@ defmodule ResumeWeb.CoreComponents do
   """
   slot :item, required: true do
     attr :title, :string, required: true
-    attr :class, :string, required: true
+    attr :class, :string
   end
 
   attr :class, :string, default: nil
@@ -389,14 +389,14 @@ defmodule ResumeWeb.CoreComponents do
         :for={item <- @item}
         class={
           cond do
-            item.class != nil -> item.class
+            item[:class] != nil -> item[:class]
             @class != nil -> @class
             true -> "list-row"
           end
         }
       >
         <div class="list-col-grow">
-          <div class="font-bold">{item.title}</div>
+          <div class="font-bold">{item[:title]}</div>
           <div>{render_slot(item)}</div>
         </div>
       </li>
