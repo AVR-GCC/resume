@@ -29,13 +29,13 @@ defmodule ResumeWeb.MarketSimLive.Index do
       {95.5, 0, :buy}
     ]
 
-    strategy_weights = Map.from_keys(@strategies, 0)
+    # strategy_weights = Map.from_keys(@strategies, 0)
 
     socket =
       socket
-      |> assign(:strategy_weights, strategy_weights)
       |> assign(:traders, [])
       |> assign(:name, "")
+      |> assign(:strategy, :random)
       |> assign(:strategies, @strategies)
       |> assign(:price_history, [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])
       |> assign(:price, 100)
@@ -84,6 +84,17 @@ defmodule ResumeWeb.MarketSimLive.Index do
     {:noreply, socket}
   end
 
+  def handle_info({:strategy_selected, strat}, socket) do
+    socket =
+      socket
+      |> assign(
+        :strategy,
+        strat |> String.downcase() |> String.replace(" ", "_") |> String.to_atom()
+      )
+
+    {:noreply, socket}
+  end
+
   def handle_info(:tick, socket) do
     new_price_history = [socket.assigns.price | socket.assigns.price_history]
 
@@ -108,53 +119,59 @@ defmodule ResumeWeb.MarketSimLive.Index do
   end
 
   def handle_event("add_trader", _values, socket) do
-    strategy_weights = socket.assigns.strategy_weights
-    new_strategy_weights = Map.from_keys(@strategies, 0)
-    new_traders = [strategy_weights | socket.assigns.traders]
+    strategy = socket.assigns.strategy
+    # strategy_weights = Map.put(Map.from_keys(@strategies, 0), strategy, 1)
+    traders = socket.assigns.traders
+    new_traders = [strategy | traders]
 
     socket =
       socket
       |> assign(:traders, new_traders)
-      |> assign(:strategy_weights, new_strategy_weights)
-      |> assign(:name, "")
 
     {:noreply, socket}
   end
 
-  def handle_event("change-weight", %{"strat" => strat, "direction" => direction}, socket) do
-    old_strategy_weights = socket.assigns.strategy_weights
-
-    increment =
-      if direction == "up" do
-        1
-      else
-        -1
-      end
-
-    strategy_weights =
-      Map.update(
-        old_strategy_weights,
-        String.to_atom(strat),
-        1,
-        &if &1 == 0 and direction == "down" do
-          0
-        else
-          &1 + increment
-        end
-      )
-
-    socket =
-      socket
-      |> assign(:strategy_weights, strategy_weights)
-
-    {:noreply, socket}
-  end
+  # def handle_event("change-weight", %{"strat" => strat, "direction" => direction}, socket) do
+  #   old_strategy_weights = socket.assigns.strategy_weights
+  #
+  #   increment =
+  #     if direction == "up" do
+  #       1
+  #     else
+  #       -1
+  #     end
+  #
+  #   strategy_weights =
+  #     Map.update(
+  #       old_strategy_weights,
+  #       String.to_atom(strat),
+  #       1,
+  #       &if &1 == 0 and direction == "down" do
+  #         0
+  #       else
+  #         &1 + increment
+  #       end
+  #     )
+  #
+  #   socket =
+  #     socket
+  #     |> assign(:strategy_weights, strategy_weights)
+  #
+  #   {:noreply, socket}
+  # end
 
   def handle_event("toggle_simulation", _, socket) do
     case socket.assigns.simulation_pid do
       nil ->
+        traders =
+          socket.assigns.traders
+          |> Enum.map(fn strat ->
+            Map.from_keys(@strategies, 0)
+            |> Map.put(strat, 1)
+          end)
+
         {:ok, pid} =
-          Simulation.start_link(%{liveview_pid: self(), traders: socket.assigns.traders})
+          Simulation.start_link(%{liveview_pid: self(), traders: traders})
 
         socket =
           socket
@@ -184,35 +201,39 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def new_trader(assigns) do
     ~H"""
-    <.table id="traders" rows={@strategies}>
-      <:col :let={strat}>
-        <div>{get_name(strat)}</div>
-      </:col>
-      <:col :let={strat}>
-        <div>{@strategy_weights[strat]}</div>
-      </:col>
-      <:col :let={strat}>
-        <div class="flex flex-col cursor-pointer">
-          <.icon
-            name="hero-arrow-up-mini"
-            phx-click="change-weight"
-            phx-value-direction="up"
-            phx-value-strat={strat}
-          />
-          <.icon
-            name="hero-arrow-down-mini"
-            phx-click="change-weight"
-            phx-value-direction="down"
-            phx-value-strat={strat}
-          />
-        </div>
-      </:col>
-    </.table>
+    <.live_component
+      module={ResumeWeb.Components.Dropdown}
+      id="dropdown"
+      values={Enum.map(@strategies, fn strat -> get_name(strat) end)}
+      button_class="w-40 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
+      class="w-40 bg-gray-700 text-gray-200 px-4 py-2.5 border-b border-gray-600 last:border-b-0 hover:bg-gray-600 hover:text-white hover:pl-5 active:bg-gray-500 cursor-pointer transition-all duration-150 text-sm first:rounded-t last:rounded-b"
+    />
+    <%!-- <.table id="traders" rows={@strategies}> --%>
+    <%!--   <:col :let={strat}> --%>
+    <%!--     <div>{get_name(strat)}</div> --%>
+    <%!--   </:col> --%>
+    <%!--   <:col :let={strat}> --%>
+    <%!--     <div>{@strategy_weights[strat]}</div> --%>
+    <%!--   </:col> --%>
+    <%!--   <:col :let={strat}> --%>
+    <%!--     <div class="flex flex-col cursor-pointer"> --%>
+    <%!--       <.icon --%>
+    <%!--         name="hero-arrow-up-mini" --%>
+    <%!--         phx-click="change-weight" --%>
+    <%!--         phx-value-direction="up" --%>
+    <%!--         phx-value-strat={strat} --%>
+    <%!--       /> --%>
+    <%!--       <.icon --%>
+    <%!--         name="hero-arrow-down-mini" --%>
+    <%!--         phx-click="change-weight" --%>
+    <%!--         phx-value-direction="down" --%>
+    <%!--         phx-value-strat={strat} --%>
+    <%!--       /> --%>
+    <%!--     </div> --%>
+    <%!--   </:col> --%>
+    <%!-- </.table> --%>
     <div class="h-7" />
-    <.button
-      phx-click="add_trader"
-      disabled={Enum.all?(@strategy_weights, fn {_, val} -> val == 0 end)}
-    >
+    <.button phx-click="add_trader">
       Add
     </.button>
     """
@@ -222,9 +243,10 @@ defmodule ResumeWeb.MarketSimLive.Index do
     ~H"""
     <div class="flex flex-col h-80 overflow-y-auto">
       <.table id="traders" rows={Enum.with_index(@traders)}>
-        <:col :let={{trader, _}} :for={strat <- @strategies} label={get_name(strat)}>
-          <div class="flex justify-center">{Map.get(trader, strat)}</div>
-        </:col>
+        <%!-- <:col :let={{trader, _}} :for={strat <- @strategies} label={get_name(strat)}> --%>
+        <%!--   <div class="flex justify-center">{Map.get(trader, strat)}</div> --%>
+        <%!-- </:col> --%>
+        <:col :let={{strat, _}} label="Strategy">{get_name(strat)}</:col>
         <:col :let={{_, index}}>
           <.icon
             name="hero-trash-mini"
