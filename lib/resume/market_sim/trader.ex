@@ -131,30 +131,53 @@ defmodule Trader do
     end
   end
 
+  defp asset_to_holding(assets) do
+    assets
+    |> Enum.map(fn {asset, %{holding: holding}} -> {asset, holding} end)
+    |> Enum.into(%{})
+  end
+
   def buy(state, asset, amount, price) do
     OrderBook.add_order(self(), asset, :buy, amount, price)
-    send(state.liveview_pid, {:trade, state.id, :buy, price, amount})
     money = amount * price
 
     update_cash = fn %{holding: holding, position: position} ->
       %{holding: holding - money, position: position + money}
     end
 
-    state |> Map.update!(:cash, update_cash)
+    new_state =
+      state
+      |> Map.update!(:cash, update_cash)
+
+    send(
+      state.liveview_pid,
+      {:trade, state.id, :buy, price, amount, new_state.cash.holding,
+       asset_to_holding(new_state.assets)}
+    )
+
+    new_state
   end
 
   def sell(state, asset, amount, price) do
     OrderBook.add_order(self(), asset, :sell, amount, price)
-    send(state.liveview_pid, {:trade, state.id, :sell, price, amount})
 
     update_asset = fn %{holding: holding, position: position} ->
       %{holding: holding - amount, position: position + amount}
     end
 
-    state
-    |> Map.update!(:assets, fn assets ->
-      Map.update(assets, asset, %{holding: 0, position: 0}, update_asset)
-    end)
+    new_state =
+      state
+      |> Map.update!(:assets, fn assets ->
+        Map.update(assets, asset, %{holding: 0, position: 0}, update_asset)
+      end)
+
+    send(
+      state.liveview_pid,
+      {:trade, state.id, :sell, price, amount, new_state.cash.holding,
+       asset_to_holding(new_state.assets)}
+    )
+
+    new_state
   end
 
   def get_sentiment(strategies, liveview_pid) do

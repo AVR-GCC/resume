@@ -43,6 +43,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:volumes, volume)
       |> assign(:simulation_pid, nil)
       |> assign(:recent_trades, %{})
+      |> assign(:updated_holdings, %{})
 
     {:ok, socket}
   end
@@ -63,14 +64,19 @@ defmodule ResumeWeb.MarketSimLive.Index do
     {:noreply, socket}
   end
 
-  def handle_info({:trade, index, direction, price, amount}, socket) do
+  def handle_info({:trade, index, direction, price, amount, cash, holdings}, socket) do
     trade = %{direction: direction, price: price, amount: amount}
     old_recent_trades = socket.assigns.recent_trades
     recent_trades = Map.put(old_recent_trades, index, trade)
 
+    holding = %{cash: cash, holdings: holdings}
+    old_updated_holdings = socket.assigns.updated_holdings
+    updated_holdings = Map.put(old_updated_holdings, index, holding)
+
     socket =
       socket
       |> assign(:recent_trades, recent_trades)
+      |> assign(:updated_holdings, updated_holdings)
 
     {:noreply, socket}
   end
@@ -123,10 +129,14 @@ defmodule ResumeWeb.MarketSimLive.Index do
     # strategy_weights = Map.put(Map.from_keys(@strategies, 0), strategy, 1)
     traders = socket.assigns.traders
     new_traders = [strategy | traders]
+    holding = %{cash: 100, holdings: %{market: 1}}
+    old_updated_holdings = socket.assigns.updated_holdings
+    updated_holdings = Map.put(old_updated_holdings, length(traders), holding)
 
     socket =
       socket
       |> assign(:traders, new_traders)
+      |> assign(:updated_holdings, updated_holdings)
 
     {:noreply, socket}
   end
@@ -254,6 +264,19 @@ defmodule ResumeWeb.MarketSimLive.Index do
             phx-click="remove_trader"
             phx-value-index={index}
           />
+        </:col>
+        <:col :let={{_, index}} label="Cash">
+          <div :if={Map.has_key?(@updated_holdings, index)}>
+            {get_in(@updated_holdings, [index, :cash])}
+          </div>
+        </:col>
+        <:col :let={{_, index}} label="Asset">
+          <div :if={
+            Map.has_key?(@updated_holdings, index) &&
+              Map.has_key?(get_in(@updated_holdings, [index, :holdings]), :market)
+          }>
+            {get_in(@updated_holdings, [index, :holdings, :market])}
+          </div>
         </:col>
         <:col :let={{_, index}} label="Direction">
           <div :if={Map.has_key?(@recent_trades, index)}>
