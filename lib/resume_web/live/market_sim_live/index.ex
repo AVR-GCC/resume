@@ -1,7 +1,7 @@
 defmodule ResumeWeb.MarketSimLive.Index do
   use ResumeWeb, :live_view
 
-  @strategies [:momentum, :mean_reversion, :volitility_breakout, :external_sentiment, :random]
+  @strategies [:random, :momentum, :mean_reversion, :volitility_breakout, :external_sentiment]
 
   def mount(_params, _session, socket) do
     volume = [
