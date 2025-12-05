@@ -265,6 +265,14 @@ defmodule ResumeWeb.MarketSimLive.Index do
             phx-value-index={index}
           />
         </:col>
+        <:col :let={{_, index}} label="Total">
+          <div :if={
+            Map.has_key?(@updated_holdings, index) &&
+              Map.has_key?(get_in(@updated_holdings, [index, :holdings]), :market)
+          }>
+            {Float.round(get_in(@updated_holdings, [index, :holdings, :market]) * @price + get_in(@updated_holdings, [index, :cash]) + 0.0, 2)}
+          </div>
+        </:col>
         <:col :let={{_, index}} label="Cash">
           <div :if={Map.has_key?(@updated_holdings, index)}>
             {get_in(@updated_holdings, [index, :cash])}
