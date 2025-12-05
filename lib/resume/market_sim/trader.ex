@@ -37,6 +37,8 @@ defmodule Trader do
     {:ok, state}
   end
 
+  defp rnd(nm), do: Float.round(nm + 0.0, 2)
+
   def handle_info({:order_fulfilled, :buy, asset, amount, price}, state) do
     update_asset = fn %{holding: holding, position: position} ->
       %{holding: holding + amount, position: position}
@@ -62,11 +64,11 @@ defmodule Trader do
     money = amount * price
 
     update_cash = fn %{holding: holding, position: position} ->
-      %{holding: holding + money, position: position}
+      %{holding: rnd(holding + money), position: rnd(position)}
     end
 
     update_asset = fn %{holding: holding, position: position} ->
-      %{holding: holding, position: position - amount}
+      %{holding: rnd(holding), position: rnd(position - amount)}
     end
 
     new_state =
@@ -110,7 +112,7 @@ defmodule Trader do
           asset_holding
         end
 
-      amount = Float.round(total_holding * updated_intensity, 2)
+      amount = rnd(total_holding * updated_intensity)
 
       price_param =
         if is_buy do
@@ -119,7 +121,7 @@ defmodule Trader do
           1 - updated_intensity
         end
 
-      price = Float.round(current_price * price_param, 2)
+      price = rnd(current_price * price_param)
 
       if is_buy do
         buy(state, asset, amount, price)
@@ -133,7 +135,7 @@ defmodule Trader do
 
   defp asset_to_holding(assets) do
     assets
-    |> Enum.map(fn {asset, %{holding: holding}} -> {asset, holding} end)
+    |> Enum.map(fn {asset, %{holding: holding}} -> {asset, rnd(holding)} end)
     |> Enum.into(%{})
   end
 
@@ -142,7 +144,7 @@ defmodule Trader do
     money = amount * price
 
     update_cash = fn %{holding: holding, position: position} ->
-      %{holding: holding - money, position: position + money}
+      %{holding: rnd(holding - money), position: rnd(position + money)}
     end
 
     new_state =
@@ -151,7 +153,7 @@ defmodule Trader do
 
     send(
       state.liveview_pid,
-      {:trade, state.id, :buy, price, amount, new_state.cash.holding,
+      {:trade, state.id, :buy, price, amount, rnd(new_state.cash.holding),
        asset_to_holding(new_state.assets)}
     )
 
@@ -162,7 +164,7 @@ defmodule Trader do
     OrderBook.add_order(self(), asset, :sell, amount, price)
 
     update_asset = fn %{holding: holding, position: position} ->
-      %{holding: holding - amount, position: position + amount}
+      %{holding: rnd(holding - amount), position: rnd(position + amount)}
     end
 
     new_state =
@@ -173,7 +175,7 @@ defmodule Trader do
 
     send(
       state.liveview_pid,
-      {:trade, state.id, :sell, price, amount, new_state.cash.holding,
+      {:trade, state.id, :sell, price, amount, rnd(new_state.cash.holding),
        asset_to_holding(new_state.assets)}
     )
 
