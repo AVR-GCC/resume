@@ -179,6 +179,11 @@ defmodule ResumeWeb.MarketSimLive.Index do
             Map.from_keys(@strategies, 0)
             |> Map.put(strat, 1)
           end)
+          |> Enum.with_index()
+          |> Enum.map(fn {strat, index} ->
+            %{^index => %{cash: cash, holdings: %{market: asset}}} = socket.assigns.updated_holdings
+            {strat, cash, asset}
+          end)
 
         {:ok, pid} =
           Simulation.start_link(%{liveview_pid: self(), traders: traders})

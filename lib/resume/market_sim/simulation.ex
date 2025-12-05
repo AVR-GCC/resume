@@ -10,7 +10,7 @@ defmodule Simulation do
     trader_children =
       traders
       |> Enum.with_index()
-      |> Enum.map(fn {strategy, index} ->
+      |> Enum.map(fn {{strategy, cash, asset}, index} ->
         %{
           id: {:trader, index},
           start: {
@@ -21,8 +21,8 @@ defmodule Simulation do
                 strategy: strategy,
                 id: index,
                 liveview_pid: liveview_pid,
-                cash: 100,
-                asset_holdings: %{market: 1}
+                cash: cash,
+                asset_holdings: %{market: asset}
               }
             ]
           }
