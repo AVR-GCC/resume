@@ -42,8 +42,8 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:external_sentiment, 0.5)
       |> assign(:volumes, volume)
       |> assign(:simulation_pid, nil)
-      |> assign(:recent_trades, %{})
-      |> assign(:updated_holdings, %{})
+      |> assign(:recent_trades, [])
+      |> assign(:updated_holdings, [])
 
     {:ok, socket}
   end
@@ -67,11 +67,11 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def handle_info({:trade, index, direction, price, amount, cash, holdings}, socket) do
     trade = %{direction: direction, price: price, amount: amount}
     old_recent_trades = socket.assigns.recent_trades
-    recent_trades = Map.put(old_recent_trades, index, trade)
+    recent_trades = List.replace_at(old_recent_trades, index, trade)
 
     holding = %{cash: cash, holdings: holdings}
     old_updated_holdings = socket.assigns.updated_holdings
-    updated_holdings = Map.put(old_updated_holdings, index, holding)
+    updated_holdings = List.replace_at(old_updated_holdings, index, holding)
 
     socket =
       socket
@@ -116,10 +116,14 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def handle_event("remove_trader", %{"index" => index_str}, socket) do
     index = String.to_integer(index_str)
     new_traders = List.delete_at(socket.assigns.traders, index)
+    new_updated_holdings = List.delete_at(socket.assigns.updated_holdings, index)
+    new_recent_trades = List.delete_at(socket.assigns.recent_trades, index)
 
     socket =
       socket
       |> assign(:traders, new_traders)
+      |> assign(:updated_holdings, new_updated_holdings)
+      |> assign(:recent_trades, new_recent_trades)
 
     {:noreply, socket}
   end
@@ -131,11 +135,14 @@ defmodule ResumeWeb.MarketSimLive.Index do
     new_traders = [strategy | traders]
     holding = %{cash: 100, holdings: %{market: 1}}
     old_updated_holdings = socket.assigns.updated_holdings
-    updated_holdings = Map.put(old_updated_holdings, length(traders), holding)
+    updated_holdings = [holding | old_updated_holdings]
+    old_recent_trades = socket.assigns.recent_trades
+    recent_trades = [%{price: socket.assigns.price, amount: 0, direction: :buy} | old_recent_trades]
 
     socket =
       socket
       |> assign(:traders, new_traders)
+      |> assign(:recent_trades, recent_trades)
       |> assign(:updated_holdings, updated_holdings)
 
     {:noreply, socket}
@@ -181,7 +188,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           end)
           |> Enum.with_index()
           |> Enum.map(fn {strat, index} ->
-            %{^index => %{cash: cash, holdings: %{market: asset}}} = socket.assigns.updated_holdings
+            %{cash: cash, holdings: %{market: asset}} = Enum.at(socket.assigns.updated_holdings, index)
             {strat, cash, asset}
           end)
 
@@ -257,11 +264,11 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def traders_list(assigns) do
     ~H"""
     <div class="flex flex-col h-80 overflow-y-auto">
-      <.table id="traders" rows={Enum.with_index(@traders)}>
+      <.table id="traders" rows={Enum.with_index(Enum.zip([@traders, @updated_holdings, @recent_trades]))}>
         <%!-- <:col :let={{trader, _}} :for={strat <- @strategies} label={get_name(strat)}> --%>
         <%!--   <div class="flex justify-center">{Map.get(trader, strat)}</div> --%>
         <%!-- </:col> --%>
-        <:col :let={{strat, _}} label="Strategy">{get_name(strat)}</:col>
+        <:col :let={{{strat, _, _}, _}} label="Strategy">{get_name(strat)}</:col>
         <:col :let={{_, index}}>
           <.icon
             name="hero-trash-mini"
@@ -270,46 +277,28 @@ defmodule ResumeWeb.MarketSimLive.Index do
             phx-value-index={index}
           />
         </:col>
-        <:col :let={{_, index}} label="Total">
-          <div :if={
-            Map.has_key?(@updated_holdings, index) &&
-              Map.has_key?(get_in(@updated_holdings, [index, :holdings]), :market)
-          }>
-            {Float.round(get_in(@updated_holdings, [index, :holdings, :market]) * @price + get_in(@updated_holdings, [index, :cash]) + 0.0, 2)}
+        <:col :let={{{_, holdings, _}, _}} label="Total">
+            {Float.round(get_in(holdings, [:holdings, :market]) * @price + get_in(holdings, [:cash]) + 0.0, 2)}
+        </:col>
+        <:col :let={{{_, holdings, _}, _}} label="Cash">
+          {get_in(holdings, [:cash])}
+        </:col>
+        <:col :let={{{_, holdings, _}, _}} label="Asset">
+          {get_in(holdings, [:holdings, :market])}
+        </:col>
+        <:col :let={{{_, _, trades}, _}} label="Direction">
+          <div :if={get_in(trades, [:direction]) == :buy}>
+            <.icon name="hero-arrow-up" class="text-green-500" />
+          </div>
+          <div :if={get_in(trades, [:direction]) == :sell}>
+            <.icon name="hero-arrow-down" class="text-red-500" />
           </div>
         </:col>
-        <:col :let={{_, index}} label="Cash">
-          <div :if={Map.has_key?(@updated_holdings, index)}>
-            {get_in(@updated_holdings, [index, :cash])}
-          </div>
+        <:col :let={{{_, _, trades}, _}} label="Price">
+          {get_in(trades, [:price])}
         </:col>
-        <:col :let={{_, index}} label="Asset">
-          <div :if={
-            Map.has_key?(@updated_holdings, index) &&
-              Map.has_key?(get_in(@updated_holdings, [index, :holdings]), :market)
-          }>
-            {get_in(@updated_holdings, [index, :holdings, :market])}
-          </div>
-        </:col>
-        <:col :let={{_, index}} label="Direction">
-          <div :if={Map.has_key?(@recent_trades, index)}>
-            <div :if={get_in(@recent_trades, [index, :direction]) == :buy}>
-              <.icon name="hero-arrow-up" class="text-green-500" />
-            </div>
-            <div :if={get_in(@recent_trades, [index, :direction]) == :sell}>
-              <.icon name="hero-arrow-down" class="text-red-500" />
-            </div>
-          </div>
-        </:col>
-        <:col :let={{_, index}} label="Price">
-          <div :if={Map.has_key?(@recent_trades, index)}>
-            {get_in(@recent_trades, [index, :price])}
-          </div>
-        </:col>
-        <:col :let={{_, index}} label="Amount">
-          <div :if={Map.has_key?(@recent_trades, index)}>
-            {get_in(@recent_trades, [index, :amount])}
-          </div>
+        <:col :let={{{_, _, trades}, _}} label="Amount">
+          {get_in(trades, [:amount])}
         </:col>
       </.table>
     </div>
