@@ -90,17 +90,6 @@ defmodule ResumeWeb.MarketSimLive.Index do
     {:noreply, socket}
   end
 
-  def handle_info({:strategy_selected, strat}, socket) do
-    socket =
-      socket
-      |> assign(
-        :strategy,
-        strat |> String.downcase() |> String.replace(" ", "_") |> String.to_atom()
-      )
-
-    {:noreply, socket}
-  end
-
   def handle_info(:tick, socket) do
     new_price_history = [socket.assigns.price | socket.assigns.price_history]
 
@@ -218,6 +207,17 @@ defmodule ResumeWeb.MarketSimLive.Index do
     end
   end
 
+  def handle_event("strategy-selected", %{"strat" => strat}, socket) do
+    socket =
+      socket
+      |> assign(
+        :strategy,
+        strat |> String.downcase() |> String.replace(" ", "_") |> String.to_atom()
+      )
+
+    {:noreply, socket}
+  end
+
   # Display components
 
   def get_name(:momentum), do: "Momentum"
@@ -228,13 +228,19 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def new_trader(assigns) do
     ~H"""
-    <.live_component
-      module={ResumeWeb.Components.Dropdown}
-      id="dropdown"
-      values={Enum.map(@strategies, fn strat -> get_name(strat) end)}
-      button_class="w-40 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
-      class="w-40 bg-gray-700 text-gray-200 px-4 py-2.5 border-b border-gray-600 last:border-b-0 hover:bg-gray-600 hover:text-white hover:pl-5 active:bg-gray-500 cursor-pointer transition-all duration-150 text-sm first:rounded-t last:rounded-b"
-    />
+    <div class="h-7" />
+    <div>
+      <.form for={%{}} phx-change="strategy-selected">
+        <.input
+          type="select"
+          id="odrop"
+          name="strat"
+          options={Enum.map(@strategies, fn strat -> get_name(strat) end)}
+          class="w-50 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
+          value={get_name(@strategy)}
+        />
+      </.form>
+    </div>
     <%!-- <.table id="traders" rows={@strategies}> --%>
     <%!--   <:col :let={strat}> --%>
     <%!--     <div>{get_name(strat)}</div> --%>
