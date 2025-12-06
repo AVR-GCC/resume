@@ -235,6 +235,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def get_name(:random), do: "Random"
 
   def new_trader(assigns) do
+    assigns = assigns |> assign(:class, "w-50 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer")
     ~H"""
     <div class="h-7" />
     <div>
@@ -245,7 +246,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           id="odrop"
           name="strat"
           options={Enum.map(@strategies, fn strat -> get_name(strat) end)}
-          class="w-50 ml-1 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
+          class={"ml-1 " <> @class}
           value={get_name(@strategy)}
         />
         <.input
@@ -253,7 +254,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           label="Cash"
           id="cash-input"
           name="cash"
-          class="w-50 ml-6 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
+          class={"ml-6 " <> @class}
           value={@cash}
         />
         <.input
@@ -261,7 +262,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           label="Asset"
           id="asset-input"
           name="asset"
-          class="w-50 ml-5 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
+          class={"ml-5 " <> @class}
           value={@market}
         />
       </.form>
