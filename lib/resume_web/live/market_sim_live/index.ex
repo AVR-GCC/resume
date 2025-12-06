@@ -209,14 +209,21 @@ defmodule ResumeWeb.MarketSimLive.Index do
     end
   end
 
-  def handle_event("strategy-selected", %{"strat" => strat, "cash" => raw_cash, "asset" => raw_asset}, socket) do
+  def handle_event(
+        "strategy-selected",
+        %{"strat" => strat, "cash" => raw_cash, "asset" => raw_asset},
+        socket
+      ) do
     strategy = strat |> String.downcase() |> String.replace(" ", "_") |> String.to_atom()
-    {cash, asset} = case {Float.parse(raw_cash), Float.parse(raw_asset)} do
-      {{cash, _}, {asset, _}} -> {cash, asset}
-      {_, {asset, _}} -> {socket.assigns.cash, asset}
-      {{cash, _}, _} -> {cash, socket.assigns.asset}
-      _ -> {socket.assigns.cash, socket.assigns.asset}
-    end
+
+    {cash, asset} =
+      case {Float.parse(raw_cash), Float.parse(raw_asset)} do
+        {{cash, _}, {asset, _}} -> {cash, asset}
+        {_, {asset, _}} -> {socket.assigns.cash, asset}
+        {{cash, _}, _} -> {cash, socket.assigns.asset}
+        _ -> {socket.assigns.cash, socket.assigns.asset}
+      end
+
     socket =
       socket
       |> assign(:strategy, strategy)
@@ -235,7 +242,13 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def get_name(:random), do: "Random"
 
   def new_trader(assigns) do
-    assigns = assigns |> assign(:class, "w-50 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer")
+    assigns =
+      assigns
+      |> assign(
+        :class,
+        "w-50 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
+      )
+
     ~H"""
     <div class="h-7" />
     <div>
@@ -247,6 +260,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           name="strat"
           options={Enum.map(@strategies, fn strat -> get_name(strat) end)}
           class={"ml-1 " <> @class}
+          style="appearance: none; -webkit-appearance: none; -moz-appearance: none;"
           value={get_name(@strategy)}
         />
         <.input
