@@ -39,6 +39,8 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:strategies, @strategies)
       |> assign(:price_history, [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])
       |> assign(:price, 100)
+      |> assign(:cash, 100)
+      |> assign(:market, 1)
       |> assign(:external_sentiment, 0.5)
       |> assign(:volumes, volume)
       |> assign(:simulation_pid, nil)
@@ -122,7 +124,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
     # strategy_weights = Map.put(Map.from_keys(@strategies, 0), strategy, 1)
     traders = socket.assigns.traders
     new_traders = [strategy | traders]
-    holding = %{cash: 100, holdings: %{market: 1}}
+    holding = %{cash: socket.assigns.cash, holdings: %{market: socket.assigns.market}}
     old_updated_holdings = socket.assigns.updated_holdings
     updated_holdings = [holding | old_updated_holdings]
     old_recent_trades = socket.assigns.recent_trades
@@ -207,13 +209,19 @@ defmodule ResumeWeb.MarketSimLive.Index do
     end
   end
 
-  def handle_event("strategy-selected", %{"strat" => strat}, socket) do
+  def handle_event("strategy-selected", %{"strat" => strat, "cash" => raw_cash, "asset" => raw_asset}, socket) do
+    strategy = strat |> String.downcase() |> String.replace(" ", "_") |> String.to_atom()
+    {cash, asset} = case {Float.parse(raw_cash), Float.parse(raw_asset)} do
+      {{cash, _}, {asset, _}} -> {cash, asset}
+      {_, {asset, _}} -> {socket.assigns.cash, asset}
+      {{cash, _}, _} -> {cash, socket.assigns.asset}
+      _ -> {socket.assigns.cash, socket.assigns.asset}
+    end
     socket =
       socket
-      |> assign(
-        :strategy,
-        strat |> String.downcase() |> String.replace(" ", "_") |> String.to_atom()
-      )
+      |> assign(:strategy, strategy)
+      |> assign(:cash, cash)
+      |> assign(:market, asset)
 
     {:noreply, socket}
   end
@@ -233,11 +241,28 @@ defmodule ResumeWeb.MarketSimLive.Index do
       <.form for={%{}} phx-change="strategy-selected">
         <.input
           type="select"
+          label="Strategy"
           id="odrop"
           name="strat"
           options={Enum.map(@strategies, fn strat -> get_name(strat) end)}
-          class="w-50 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
+          class="w-50 ml-1 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
           value={get_name(@strategy)}
+        />
+        <.input
+          type="text"
+          label="Cash"
+          id="cash-input"
+          name="cash"
+          class="w-50 ml-6 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
+          value={@cash}
+        />
+        <.input
+          type="text"
+          label="Asset"
+          id="asset-input"
+          name="asset"
+          class="w-50 ml-5 bg-gray-600 text-indigo-300 font-medium px-4 py-2 rounded border border-gray-700 hover:bg-gray-500 hover:border-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 text-sm min-w-[120px] cursor-pointer"
+          value={@market}
         />
       </.form>
     </div>
