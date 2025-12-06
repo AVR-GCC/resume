@@ -137,7 +137,10 @@ defmodule ResumeWeb.MarketSimLive.Index do
     old_updated_holdings = socket.assigns.updated_holdings
     updated_holdings = [holding | old_updated_holdings]
     old_recent_trades = socket.assigns.recent_trades
-    recent_trades = [%{price: socket.assigns.price, amount: 0, direction: :buy} | old_recent_trades]
+
+    recent_trades = [
+      %{price: socket.assigns.price, amount: 0, direction: :buy} | old_recent_trades
+    ]
 
     socket =
       socket
@@ -188,7 +191,9 @@ defmodule ResumeWeb.MarketSimLive.Index do
           end)
           |> Enum.with_index()
           |> Enum.map(fn {strat, index} ->
-            %{cash: cash, holdings: %{market: asset}} = Enum.at(socket.assigns.updated_holdings, index)
+            %{cash: cash, holdings: %{market: asset}} =
+              Enum.at(socket.assigns.updated_holdings, index)
+
             {strat, cash, asset}
           end)
 
@@ -264,7 +269,10 @@ defmodule ResumeWeb.MarketSimLive.Index do
   def traders_list(assigns) do
     ~H"""
     <div class="flex flex-col h-80 overflow-y-auto">
-      <.table id="traders" rows={Enum.with_index(Enum.zip([@traders, @updated_holdings, @recent_trades]))}>
+      <.table
+        id="traders"
+        rows={Enum.with_index(Enum.zip([@traders, @updated_holdings, @recent_trades]))}
+      >
         <%!-- <:col :let={{trader, _}} :for={strat <- @strategies} label={get_name(strat)}> --%>
         <%!--   <div class="flex justify-center">{Map.get(trader, strat)}</div> --%>
         <%!-- </:col> --%>
@@ -278,7 +286,10 @@ defmodule ResumeWeb.MarketSimLive.Index do
           />
         </:col>
         <:col :let={{{_, holdings, _}, _}} label="Total">
-            {Float.round(get_in(holdings, [:holdings, :market]) * @price + get_in(holdings, [:cash]) + 0.0, 2)}
+          {Float.round(
+            get_in(holdings, [:holdings, :market]) * @price + get_in(holdings, [:cash]) + 0.0,
+            2
+          )}
         </:col>
         <:col :let={{{_, holdings, _}, _}} label="Cash">
           {get_in(holdings, [:cash])}
