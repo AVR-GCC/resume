@@ -27,9 +27,10 @@ defmodule ResumeWeb.AppComponents do
         <img
           src={~p"/images/hero-bg.jpg"}
           alt=""
-          class="w-full h-full object-cover opacity-20"
+          class="w-full h-full object-cover opacity-40"
         />
-        <div class="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
+        <div class="absolute inset-0 bg-black/50" />
+        <%!-- <div class="absolute inset-0 bg-gradient-to-b from-background/20 via-background/50 to-background" /> --%>
       </div>
       <div class="pt-20 h-screen relative z-10">
         {render_slot(@inner_block)}
