@@ -3,14 +3,20 @@ defmodule ResumeWeb.AppComponents do
   use ResumeWeb, :verified_routes
 
   def toolbar(assigns) do
+    style = "transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(.4, 0, .2, 1); transition-duration: .15s;"
+    class = "p-5 text-gray-400 hover:text-[#20d8f8]"
+    assigns =
+      assigns
+      |> assign(:class, class)
+      |> assign(:style, style)
     ~H"""
-    <div class={["flex flex-row-reverse w-full text-white p-4"]}>
-      <.link href={~p"/contact"} class="p-5">Contact</.link>
-      <.link href={~p"/market-sim"} class="p-5">Market Simulation</.link>
-      <.link href={~p"/projects"} class="p-5">Projects</.link>
-      <.link href={~p"/skills"} class="p-5">Skills</.link>
-      <.link href={~p"/about"} class="p-5">About</.link>
-      <.link href={~p"/"} class="p-5">Home</.link>
+    <div class={"flex flex-row-reverse w-full text-gray-400 p-4"}>
+      <.link href={~p"/contact"} style={@style} class={@class}>Contact</.link>
+      <.link href={~p"/market-sim"} style={@style} class={@class}>Market Simulation</.link>
+      <.link href={~p"/projects"} style={@style} class={@class}>Projects</.link>
+      <.link href={~p"/skills"} style={@style} class={@class}>Skills</.link>
+      <.link href={~p"/about"} style={@style} class={@class}>About</.link>
+      <.link href={~p"/"} style={@style} class={@class}>Home</.link>
     </div>
     """
   end
