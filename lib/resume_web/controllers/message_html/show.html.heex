@@ -1,0 +1,17 @@
+<Layouts.app flash={@flash}>
+  <.header>
+    Message {@message.id}
+    <:subtitle>This is a message record from your database.</:subtitle>
+    <:actions>
+      <.button navigate={~p"/admin/messages"}>
+        <.icon name="hero-arrow-left" />
+      </.button>
+    </:actions>
+  </.header>
+
+  <.list>
+    <:item title="Name">{@message.name}</:item>
+    <:item title="Email">{@message.email}</:item>
+    <:item title="Content">{@message.content}</:item>
+  </.list>
+</Layouts.app>

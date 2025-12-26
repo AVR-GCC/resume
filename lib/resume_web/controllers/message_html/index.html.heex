@@ -1,0 +1,21 @@
+<Layouts.app flash={@flash}>
+  <.header>
+    Messages
+  </.header>
+
+  <.table id="messages" rows={@messages} row_click={&JS.navigate(~p"/admin/messages/#{&1}")}>
+    <:col :let={message} label="Name">{message.name}</:col>
+    <:col :let={message} label="Email">{message.email}</:col>
+    <:col :let={message} label="Content">{message.content}</:col>
+    <:action :let={message}>
+      <div class="sr-only">
+        <.link navigate={~p"/admin/messages/#{message}"}>Show</.link>
+      </div>
+    </:action>
+    <:action :let={message}>
+      <.link href={~p"/admin/messages/#{message}"} method="delete" data-confirm="Are you sure?">
+        Delete
+      </.link>
+    </:action>
+  </.table>
+</Layouts.app>
