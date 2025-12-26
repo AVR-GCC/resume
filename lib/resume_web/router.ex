@@ -24,6 +24,7 @@ defmodule ResumeWeb.Router do
     get "/contact", ContactController, :contact
     get "/skills", SkillController, :index_user
     live "/market-sim", MarketSimLive.Index
+    post "/messages", MessageController, :create
   end
 
   scope "/admin", ResumeWeb do
@@ -31,6 +32,9 @@ defmodule ResumeWeb.Router do
 
     resources "/categories", CategoryController
     resources "/skills", SkillController
+    get "/messages", MessageController, :index
+    get "/messages/:id", MessageController, :show
+    delete "/messages/:id", MessageController, :delete
   end
 
   # Other scopes may use custom stacks.

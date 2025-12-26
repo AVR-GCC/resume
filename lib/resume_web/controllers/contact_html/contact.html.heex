@@ -28,33 +28,47 @@
           </div>
         </div>
       </div>
-      <div class="bg-card border border-border rounded-lg p-6 animate-fade-in" style="animation-delay: 0.1s">
-        <form class="space-y-4">
+      <div
+        class="bg-card border border-border rounded-lg p-6 animate-fade-in"
+        style="animation-delay: 0.1s"
+      >
+        <.form for={%{}} action={~p"/messages"} class="space-y-4">
           <div>
-            <input
-                  type="text"
-                  placeholder="Your Name"
-                  class="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+            <.input
+              type="text"
+              name="message[name]"
+              value=""
+              placeholder="Name"
+              class="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            />
           </div>
           <div>
-            <input
-                  type="email"
-                  placeholder="Your Email"
-                  class="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+            <.input
+              type="email"
+              name="message[email]"
+              value=""
+              placeholder="Email"
+              class="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            />
           </div>
           <div>
-            <textarea
-                  placeholder="Your Message"
-                  rows={4}
-                  class="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                />
+            <.input
+              type="textarea"
+              name="message[content]"
+              value=""
+              placeholder="Message"
+              rows={4}
+              class="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
           </div>
-          <.button class="flex items-center h-12 text-[15px] bg-[aqua] shadow-[0_0_20px_10px_aqua]/20 hover:bg-[aqua]/80 hover:shadow-[0_0_20px_5px_aqua]/10 text-black pl-10 pr-10 rounded-xl cursor-pointer" href={~p"/projects"}>
-            Send Message 
+          <.button
+            type="submit"
+            class="flex items-center h-12 text-[15px] bg-[aqua] shadow-[0_0_20px_10px_aqua]/20 hover:bg-[aqua]/80 hover:shadow-[0_0_20px_5px_aqua]/10 text-black pl-10 pr-10 rounded-xl cursor-pointer"
+          >
+            Send Message
           </.button>
-        </form>
+        </.form>
       </div>
     </div>
-  </div></.page>
+  </div>
+</.page>
