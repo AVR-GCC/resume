@@ -1,6 +1,7 @@
 defmodule ResumeWeb.AppComponents do
   use Phoenix.Component
   use ResumeWeb, :verified_routes
+  import ResumeWeb.Layouts
 
   def toolbar(assigns) do
     style = "transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(.4, 0, .2, 1); transition-duration: .15s;"
@@ -21,6 +22,7 @@ defmodule ResumeWeb.AppComponents do
     """
   end
 
+  attr :flash, :map, required: true, doc: "the map of flash messages"
   slot :inner_block, required: true
 
   def page(assigns) do
@@ -41,6 +43,7 @@ defmodule ResumeWeb.AppComponents do
       <div class="pt-20 h-screen relative z-10">
         {render_slot(@inner_block)}
       </div>
+      <.flash_group flash={@flash} />
     </div>
     """
   end

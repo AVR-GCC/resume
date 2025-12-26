@@ -505,7 +505,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def render(assigns) do
     ~H"""
-    <.page>
+    <.page flash={@flash}>
       <div class="flex justify-center h-max">
         <h1>Market Simulator</h1>
         <p class="flex items-center pl-5 text-xs">External Sentiment: {@external_sentiment}</p>
