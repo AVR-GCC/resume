@@ -22,7 +22,7 @@ defmodule ResumeWeb.Router do
     get "/about", AboutController, :about
     get "/projects", ProjectsController, :projects
     get "/contact", ContactController, :contact
-    get "/skills", SkillController, :index_user
+    get "/skills", SkillController, :skills
     live "/market-sim", MarketSimLive.Index
     post "/messages", MessageController, :create
   end

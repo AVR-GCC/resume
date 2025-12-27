@@ -78,8 +78,17 @@ defmodule ResumeWeb.SkillController do
     |> redirect(to: ~p"/admin/skills")
   end
 
-  def index_user(conn, _params) do
-    render(conn, :index_user)
+  def skills(conn, _params) do
+    categories = Categories.list_categories()
+
+    skills =
+      Skills.list_skills()
+      |> Enum.reduce(%{}, fn s, acc ->
+        Map.update(acc, s.category_id, [s], &[s | &1])
+      end)
+
+    IO.inspect(categories)
+    render(conn, :skills, categories: categories, skills: skills)
   end
 
   defp category_options(categories) do
