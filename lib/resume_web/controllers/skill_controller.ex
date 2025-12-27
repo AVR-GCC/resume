@@ -87,7 +87,6 @@ defmodule ResumeWeb.SkillController do
         Map.update(acc, s.category_id, [s], &[s | &1])
       end)
 
-    IO.inspect(categories)
     render(conn, :skills, categories: categories, skills: skills)
   end
 
