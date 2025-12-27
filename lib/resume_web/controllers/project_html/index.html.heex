@@ -1,0 +1,28 @@
+<Layouts.app flash={@flash}>
+  <.header>
+    Listing Projects
+    <:actions>
+      <.button href={~p"/admin/projects/new"}>
+        <.icon name="hero-plus" /> New Project
+      </.button>
+    </:actions>
+  </.header>
+
+  <.table id="projects" rows={@projects} row_click={&JS.navigate(~p"/admin/projects/#{&1}")}>
+    <:col :let={project} label="Title">{project.title}</:col>
+    <:col :let={project} label="Description">{project.description}</:col>
+    <:col :let={project} label="Repo">{project.repo}</:col>
+    <:col :let={project} label="Live">{project.live}</:col>
+    <:action :let={project}>
+      <div class="sr-only">
+        <.link navigate={~p"/admin/projects/#{project}"}>Show</.link>
+      </div>
+      <.link navigate={~p"/admin/projects/#{project}/edit"}>Edit</.link>
+    </:action>
+    <:action :let={project}>
+      <.link href={~p"/admin/projects/#{project}"} method="delete" data-confirm="Are you sure?">
+        Delete
+      </.link>
+    </:action>
+  </.table>
+</Layouts.app>

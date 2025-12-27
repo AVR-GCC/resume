@@ -35,6 +35,7 @@ defmodule ResumeWeb.Router do
     get "/messages", MessageController, :index
     get "/messages/:id", MessageController, :show
     delete "/messages/:id", MessageController, :delete
+    resources "/projects", ProjectController
   end
 
   # Other scopes may use custom stacks.
