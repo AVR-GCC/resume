@@ -17,7 +17,6 @@ defmodule ResumeWeb.AppComponents do
     ~H"""
     <div class="flex flex-row-reverse w-full text-gray-400 p-4">
       <.link href={~p"/contact"} style={@style} class={@class}>Contact</.link>
-      <.link href={~p"/market-sim"} style={@style} class={@class}>Market Simulation</.link>
       <.link href={~p"/projects"} style={@style} class={@class}>Projects</.link>
       <.link href={~p"/skills"} style={@style} class={@class}>Skills</.link>
       <.link href={~p"/about"} style={@style} class={@class}>About</.link>

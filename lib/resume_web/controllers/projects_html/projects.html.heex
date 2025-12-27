@@ -1,7 +1,33 @@
 <.page flash={@flash}>
-  <div class="flex justify-center items-center h-full">
-    <h1 class="md:text-7xl font-bold gradient-text">
+  <div class="flex flex-col items-center h-full">
+    <h1 class="md:text-7xl font-bold gradient-text mb-12 mt-12">
       Projects
     </h1>
+    <div class="grid grid-cols-3 gap-16 w-full">
+      <div :for={p <- @projects}>
+        <div class="bg-[#0f131a] p-5 h-70 rounded-lg border border-gray-400 hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_20px_5px_aqua]/10 animate-fade-in flex flex-col gap-3">
+          <div class="flex-1">
+            <h1 class="md:text-xl font-bold cursor-default mb-2">{p.title}</h1>
+            <span class="text-gray-400">{p.description}</span>
+          </div>
+          <div class="flex justify-between">
+            <.button
+              class="flex flex-1 items-center h-10 text-[15px] border-[aqua]/50 hover:bg-[aqua]/10 pl-10 pr-10 rounded-xl cursor-pointer border-[2px] border-[aqua] hover:text-black mr-4"
+              href={p.repo}
+              target="_blank"
+              >
+              <ResumeWeb.Icons.github class="w-5 h-5 mr-2" /> Code
+            </.button>
+            <.button
+              class="flex flex-1 items-center h-10 text-[15px] pl-10 pr-10 bg-[aqua] shadow-[0_0_20px_10px_aqua]/20 hover:bg-[aqua]/80 hover:shadow-[0_0_20px_5px_aqua]/10 text-black rounded-xl cursor-pointer"
+              href={p.live}
+              target="_blank"
+              >
+              <.icon name="hero-arrow-top-right-on-square" class="h-5 w-5 mr-2 text-sky-950" /> Live
+            </.button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </.page>
