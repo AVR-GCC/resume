@@ -35,7 +35,12 @@ defmodule Resume.MessagesTest do
 
     test "update_message/2 with valid data updates the message" do
       message = message_fixture()
-      update_attrs = %{name: "some updated name", email: "some updated email", content: "some updated content"}
+
+      update_attrs = %{
+        name: "some updated name",
+        email: "some updated email",
+        content: "some updated content"
+      }
 
       assert {:ok, %Message{} = message} = Messages.update_message(message, update_attrs)
       assert message.name == "some updated name"

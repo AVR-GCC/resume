@@ -4,7 +4,11 @@ defmodule ResumeWeb.MessageControllerTest do
   import Resume.MessagesFixtures
 
   @create_attrs %{name: "some name", email: "some email", content: "some content"}
-  @update_attrs %{name: "some updated name", email: "some updated email", content: "some updated content"}
+  @update_attrs %{
+    name: "some updated name",
+    email: "some updated email",
+    content: "some updated content"
+  }
   @invalid_attrs %{name: nil, email: nil, content: nil}
 
   describe "index" do

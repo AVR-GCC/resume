@@ -12,11 +12,16 @@
     </p>
 
     <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-      <.button class="flex items-center h-12 text-[15px] bg-[aqua] shadow-[0_0_20px_10px_aqua]/20 hover:bg-[aqua]/80 hover:shadow-[0_0_20px_5px_aqua]/10 text-black pl-10 pr-10 rounded-xl cursor-pointer" href={~p"/projects"}>
-        View My Work
-        <.icon name="hero-arrow-right-mini" class="text-sky-950" />
+      <.button
+        class="flex items-center h-12 text-[15px] bg-[aqua] shadow-[0_0_20px_10px_aqua]/20 hover:bg-[aqua]/80 hover:shadow-[0_0_20px_5px_aqua]/10 text-black pl-10 pr-10 rounded-xl cursor-pointer"
+        href={~p"/projects"}
+      >
+        View My Work <.icon name="hero-arrow-right-mini" class="text-sky-950" />
       </.button>
-      <.button class="flex items-center h-12 text-[15px] border-[aqua]/50 hover:bg-[aqua]/10 pl-10 pr-10 rounded-xl cursor-pointer border-[2px] border-[aqua] hover:text-black" href={~p"/contact"}>
+      <.button
+        class="flex items-center h-12 text-[15px] border-[aqua]/50 hover:bg-[aqua]/10 pl-10 pr-10 rounded-xl cursor-pointer border-[2px] border-[aqua] hover:text-black"
+        href={~p"/contact"}
+      >
         Get In Touch
       </.button>
     </div>
@@ -44,6 +49,6 @@
       >
         <.icon name="hero-envelope" class="h-8 w-8" />
       </a>
-  </div>
+    </div>
   </div>
 </.page>

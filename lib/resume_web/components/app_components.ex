@@ -4,14 +4,18 @@ defmodule ResumeWeb.AppComponents do
   import ResumeWeb.Layouts
 
   def toolbar(assigns) do
-    style = "transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(.4, 0, .2, 1); transition-duration: .15s;"
+    style =
+      "transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(.4, 0, .2, 1); transition-duration: .15s;"
+
     class = "p-5 text-gray-400 hover:text-[#20d8f8]"
+
     assigns =
       assigns
       |> assign(:class, class)
       |> assign(:style, style)
+
     ~H"""
-    <div class={"flex flex-row-reverse w-full text-gray-400 p-4"}>
+    <div class="flex flex-row-reverse w-full text-gray-400 p-4">
       <.link href={~p"/contact"} style={@style} class={@class}>Contact</.link>
       <.link href={~p"/market-sim"} style={@style} class={@class}>Market Simulation</.link>
       <.link href={~p"/projects"} style={@style} class={@class}>Projects</.link>
