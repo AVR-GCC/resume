@@ -12,8 +12,22 @@
           <.icon name={"hero-#{cat.icon}"} class="text-[aqua] h-8 w-8" />
           <h1 class="md:text-xl font-bold cursor-default">{cat.name}</h1>
           <ul style="list-style: square; margin-left: 20px;">
-            <li :for={skill <- @skills[cat.id]} class="text-gray-400 cursor-default">
+            <li
+              :for={skill <- @skills[cat.id]}
+              class="text-gray-400 cursor-pointer relative group"
+            >
               {skill.name}
+              <div
+                :if={skill.projects != []}
+                class="absolute left-0 top-full mt-2 bg-[#1a1f2e] border border-primary/50 rounded-lg p-3 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-10 min-w-[200px]"
+              >
+                <div class="text-xs font-semibold text-primary mb-2">Projects:</div>
+                <ul class="space-y-1">
+                  <li :for={project <- skill.projects} class="text-sm text-gray-300">
+                    • {project.title}
+                  </li>
+                </ul>
+              </div>
             </li>
           </ul>
         </div>
