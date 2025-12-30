@@ -10,7 +10,7 @@
             <h1 class="md:text-xl font-bold cursor-default mb-2">{p.title}</h1>
             <span class="cursor-default text-gray-400">{p.description}</span>
           </div>
-            <div class="flex flex-row">
+            <div class="flex flex-row flex-wrap">
               <div :for={s <- p.skills}>
                 <span class="cursor-default m-1 inline-flex items-center rounded-xl bg-[aqua]/10 px-3 py-1 text-xs font-medium text-[aqua] border-[aqua]/50 border-1">
                   {s.name}
