@@ -19,6 +19,7 @@ defmodule Resume.Skills do
   """
   def list_skills do
     Repo.all(Skill)
+    |> Enum.map(fn s -> Repo.preload(s, :projects) end)
   end
 
   @doc """
