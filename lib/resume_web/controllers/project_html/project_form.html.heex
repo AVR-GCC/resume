@@ -3,6 +3,32 @@
   <.input field={f[:description]} type="text" label="Description" />
   <.input field={f[:repo]} type="text" label="Repo" />
   <.input field={f[:live]} type="text" label="Live" />
+
+  <div class="mb-4">
+    <label class="block text-sm font-semibold leading-6 text-zinc-800 mb-2">
+      Skills
+    </label>
+    <select
+      name="project[skill_ids][]"
+      id="project_skill_ids"
+      multiple
+      class="block w-full rounded-lg border-zinc-300 py-2 px-3 text-zinc-900 focus:outline-none focus:ring-4 focus:ring-zinc-900/5"
+      size="10"
+    >
+      <%= for skill <- @skills do %>
+        <option
+          value={skill.id}
+          selected={
+            skill.id in Enum.map(Ecto.Changeset.get_field(@changeset, :skills, []), & &1.id)
+          }
+        >
+          {skill.name}
+        </option>
+      <% end %>
+    </select>
+    <p class="mt-2 text-sm text-zinc-600">Hold Ctrl (Cmd on Mac) to select multiple skills</p>
+  </div>
+
   <footer>
     <.button variant="primary">Save Project</.button>
     <.button :if={@return_to} href={@return_to}>Cancel</.button>

@@ -3,6 +3,7 @@ defmodule ResumeWeb.ProjectController do
 
   alias Resume.Projects
   alias Resume.Projects.Project
+  alias Resume.Skills
 
   def index(conn, _params) do
     projects = Projects.list_projects()
@@ -11,12 +12,26 @@ defmodule ResumeWeb.ProjectController do
 
   def new(conn, _params) do
     changeset = Projects.change_project(%Project{})
-    render(conn, :new, changeset: changeset)
+    skills = Skills.list_skills()
+    render(conn, :new, changeset: changeset, skills: skills)
   end
 
   def create(conn, %{"project" => project_params}) do
+    IO.inspect(project_params, label: "project_params")
     case Projects.create_project(project_params) do
       {:ok, project} ->
+        project_skills = project_params
+          |> Map.get("skill_ids", [])
+          |> Enum.map(fn skill -> 
+            {skill_id, _} = Integer.parse(skill)
+            %{ 
+              project_id: project.id, 
+              skill_id: skill_id,
+              inserted_at: NaiveDateTime.utc_now(),
+              updated_at: NaiveDateTime.utc_now()
+            } 
+          end)
+        Resume.Repo.insert_all("projects_skills", project_skills)
         conn
         |> put_flash(:info, "Project created successfully.")
         |> redirect(to: ~p"/admin/projects/#{project}")
@@ -34,7 +49,8 @@ defmodule ResumeWeb.ProjectController do
   def edit(conn, %{"id" => id}) do
     project = Projects.get_project!(id)
     changeset = Projects.change_project(project)
-    render(conn, :edit, project: project, changeset: changeset)
+    skills = Skills.list_skills()
+    render(conn, :edit, project: project, changeset: changeset, skills: skills)
   end
 
   def update(conn, %{"id" => id, "project" => project_params}) do

@@ -35,7 +35,7 @@ defmodule Resume.Projects do
       ** (Ecto.NoResultsError)
 
   """
-  def get_project!(id), do: Repo.get!(Project, id)
+  def get_project!(id), do: Repo.get!(Project, id) |> Repo.preload(:skills)
 
   @doc """
   Creates a project.

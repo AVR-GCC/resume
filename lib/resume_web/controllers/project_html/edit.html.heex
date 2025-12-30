@@ -4,5 +4,10 @@
     <:subtitle>Use this form to manage project records in your database.</:subtitle>
   </.header>
 
-  <.project_form changeset={@changeset} action={~p"/admin/projects/#{@project}"} return_to={~p"/projects"} />
+  <.project_form
+    changeset={@changeset}
+    action={~p"/admin/projects/#{@project}"}
+    return_to={~p"/projects"}
+    skills={@skills}
+  />
 </Layouts.app>

@@ -17,5 +17,18 @@
     <:item title="Description">{@project.description}</:item>
     <:item title="Repo">{@project.repo}</:item>
     <:item title="Live">{@project.live}</:item>
+    <:item title="Skills">
+      <%= if @project.skills != [] do %>
+        <div class="flex flex-wrap gap-2">
+          <%= for skill <- @project.skills do %>
+            <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+              {skill.name}
+            </span>
+          <% end %>
+        </div>
+      <% else %>
+        <span class="text-zinc-400">No skills assigned</span>
+      <% end %>
+    </:item>
   </.list>
 </Layouts.app>

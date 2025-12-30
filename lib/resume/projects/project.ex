@@ -8,6 +8,8 @@ defmodule Resume.Projects.Project do
     field :repo, :string
     field :live, :string
 
+    many_to_many :skills, Resume.Skills.Skill, join_through: "projects_skills"
+
     timestamps(type: :utc_datetime)
   end
 
