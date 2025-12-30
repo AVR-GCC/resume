@@ -19,8 +19,6 @@ defmodule ResumeWeb.ProjectController do
   end
 
   def create(conn, %{"project" => project_params}) do
-    IO.inspect(project_params, label: "project_params")
-
     case Projects.create_project(project_params) do
       {:ok, project} ->
         project_skills =

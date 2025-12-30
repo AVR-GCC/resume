@@ -4,6 +4,7 @@ defmodule Resume.Projects do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Repo
   alias Resume.Repo
 
   alias Resume.Projects.Project
@@ -19,6 +20,7 @@ defmodule Resume.Projects do
   """
   def list_projects do
     Repo.all(Project)
+    |> Enum.map(fn p -> Repo.preload(p, :skills) end)
   end
 
   @doc """
