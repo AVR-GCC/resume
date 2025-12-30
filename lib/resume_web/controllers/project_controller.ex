@@ -1,6 +1,8 @@
 defmodule ResumeWeb.ProjectController do
   use ResumeWeb, :controller
 
+  import Ecto.Query
+
   alias Resume.Projects
   alias Resume.Projects.Project
   alias Resume.Skills
@@ -18,20 +20,25 @@ defmodule ResumeWeb.ProjectController do
 
   def create(conn, %{"project" => project_params}) do
     IO.inspect(project_params, label: "project_params")
+
     case Projects.create_project(project_params) do
       {:ok, project} ->
-        project_skills = project_params
+        project_skills =
+          project_params
           |> Map.get("skill_ids", [])
-          |> Enum.map(fn skill -> 
+          |> Enum.map(fn skill ->
             {skill_id, _} = Integer.parse(skill)
-            %{ 
-              project_id: project.id, 
+
+            %{
+              project_id: project.id,
               skill_id: skill_id,
               inserted_at: NaiveDateTime.utc_now(),
               updated_at: NaiveDateTime.utc_now()
-            } 
+            }
           end)
+
         Resume.Repo.insert_all("projects_skills", project_skills)
+
         conn
         |> put_flash(:info, "Project created successfully.")
         |> redirect(to: ~p"/admin/projects/#{project}")
@@ -58,6 +65,28 @@ defmodule ResumeWeb.ProjectController do
 
     case Projects.update_project(project, project_params) do
       {:ok, project} ->
+        # Remove existing project-skill associations
+        Resume.Repo.delete_all(
+          from ps in "projects_skills",
+            where: field(ps, :project_id) == ^project.id
+        )
+
+        project_skills =
+          project_params
+          |> Map.get("skill_ids", [])
+          |> Enum.map(fn skill ->
+            {skill_id, _} = Integer.parse(skill)
+
+            %{
+              project_id: project.id,
+              skill_id: skill_id,
+              inserted_at: NaiveDateTime.utc_now(),
+              updated_at: NaiveDateTime.utc_now()
+            }
+          end)
+
+        Resume.Repo.insert_all("projects_skills", project_skills)
+
         conn
         |> put_flash(:info, "Project updated successfully.")
         |> redirect(to: ~p"/admin/projects/#{project}")
