@@ -14,12 +14,12 @@
           <ul style="list-style: square; margin-left: 20px;">
             <li
               :for={skill <- @skills[cat.id]}
-              class="text-gray-400 cursor-pointer relative group"
+              class="text-gray-400 cursor-pointer relative group w-fit"
             >
               {skill.name}
               <div
                 :if={skill.projects != []}
-                class="absolute left-0 top-full mt-2 bg-[#1a1f2e] border border-primary/50 rounded-lg p-3 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-10 min-w-[200px]"
+                class="absolute left-full top-0 ml-1 bg-[#1a1f2e] border border-primary/50 rounded-lg p-3 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-10 min-w-[200px] whitespace-nowrap"
               >
                 <div class="text-xs font-semibold text-primary mb-2">Projects:</div>
                 <ul class="space-y-1">
