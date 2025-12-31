@@ -1,7 +1,6 @@
 defmodule ResumeWeb.AppComponents do
   use Phoenix.Component
   use ResumeWeb, :verified_routes
-  import ResumeWeb.Layouts
 
   def toolbar(assigns) do
     style =
@@ -46,7 +45,7 @@ defmodule ResumeWeb.AppComponents do
       <div class="pt-20 h-screen relative z-10">
         {render_slot(@inner_block)}
       </div>
-      <.flash_group flash={@flash} />
+      <ResumeWeb.Layouts.flash_group flash={@flash} />
     </div>
     """
   end
