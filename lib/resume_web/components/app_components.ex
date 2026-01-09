@@ -42,7 +42,7 @@ defmodule ResumeWeb.AppComponents do
         <div class="absolute inset-0 bg-black/50" />
         <%!-- <div class="absolute inset-0 bg-gradient-to-b from-background/20 via-background/50 to-background" /> --%>
       </div>
-      <div class="pt-20 h-screen relative z-10">
+      <div class="pt-20 h-full relative z-10">
         {render_slot(@inner_block)}
       </div>
       <ResumeWeb.Layouts.flash_group flash={@flash} />
