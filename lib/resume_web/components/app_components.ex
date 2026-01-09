@@ -14,7 +14,7 @@ defmodule ResumeWeb.AppComponents do
       |> assign(:style, style)
 
     ~H"""
-    <div class="flex flex-row-reverse w-full text-gray-400 p-4">
+    <div class="flex justify-center sm:justify-start flex-row-reverse w-full text-gray-400 p-4">
       <.link href={~p"/contact"} style={@style} class={@class}>Contact</.link>
       <.link href={~p"/projects"} style={@style} class={@class}>Projects</.link>
       <.link href={~p"/skills"} style={@style} class={@class}>Skills</.link>
