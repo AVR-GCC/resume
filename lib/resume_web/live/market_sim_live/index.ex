@@ -46,6 +46,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
       |> assign(:simulation_pid, nil)
       |> assign(:recent_trades, [])
       |> assign(:updated_holdings, [])
+      |> assign(:current_path, "/market-sim")
 
     {:ok, socket}
   end
@@ -505,7 +506,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def render(assigns) do
     ~H"""
-    <.page flash={@flash}>
+    <.page flash={@flash} current_path={@current_path}>
       <div class="flex justify-center h-max">
         <h1>Market Simulator</h1>
         <p class="flex items-center pl-5 text-xs">External Sentiment: {@external_sentiment}</p>
