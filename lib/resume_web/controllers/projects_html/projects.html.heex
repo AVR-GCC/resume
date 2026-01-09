@@ -5,7 +5,7 @@
     </h1>
     <div class="overflow-x-auto p-5 mb-5 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-16">
       <div :for={p <- @projects}>
-        <div class="bg-[#0f131a] p-5 h-70 w-90 rounded-lg border border-gray-400 hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_20px_5px_aqua]/10 animate-fade-in flex flex-col gap-3">
+        <div class="bg-[#0f131a] p-5 h-70 w-70 rounded-lg border border-gray-400 hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_20px_5px_aqua]/10 animate-fade-in flex flex-col gap-3">
           <div class="flex-1">
             <h1 class="md:text-xl font-bold cursor-default mb-2">{p.title}</h1>
             <span class="cursor-default text-gray-400">{p.description}</span>
@@ -17,18 +17,18 @@
               </span>
             </div>
           </div>
-          <div class="flex justify-between">
+          <div class="flex gap-4">
             <.button
-              class="flex flex-1 items-center h-10 text-[15px] border-[aqua]/50 hover:bg-[aqua]/10 pl-10 pr-10 rounded-xl cursor-pointer border-[2px] border-[aqua] hover:text-black mr-4"
+              class="flex flex-1 justify-center items-center h-10 text-[15px] border-[aqua]/50 hover:bg-[aqua]/10 rounded-xl cursor-pointer border-[2px] border-[aqua] hover:text-black"
               href={p.repo}
               target="_blank"
             >
               <ResumeWeb.Icons.github class="w-5 h-5 mr-2" /> Code
             </.button>
-            <div :if={p.live == "none"} class="flex flex-1 pl-10 pr-10" />
+            <div :if={p.live == "none"} class="flex flex-1" />
             <.button
               :if={p.live !== "none"}
-              class="flex flex-1 items-center h-10 text-[15px] pl-10 pr-10 bg-[aqua] shadow-[0_0_20px_10px_aqua]/20 hover:bg-[aqua]/80 hover:shadow-[0_0_20px_5px_aqua]/10 text-black rounded-xl cursor-pointer"
+              class="flex flex-1 justify-center items-center h-10 text-[15px] bg-[aqua] shadow-[0_0_20px_10px_aqua]/20 hover:bg-[aqua]/80 hover:shadow-[0_0_20px_5px_aqua]/10 text-black rounded-xl cursor-pointer"
               href={p.live}
               target="_blank"
             >
