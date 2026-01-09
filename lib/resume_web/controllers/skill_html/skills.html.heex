@@ -15,7 +15,7 @@
         <div class="bg-[#0f131a] p-5 h-60 rounded-lg border border-gray-400 hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_20px_5px_aqua]/10 animate-fade-in flex flex-col gap-3">
           <.icon name={"hero-#{cat.icon}"} class="text-[aqua] h-8 w-8" />
           <h1 class="md:text-xl font-bold cursor-default">{cat.name}</h1>
-          <ul style="list-style: square; margin-left: 20px;">
+          <ul style="list-style: square; margin-left: 20px; height: 114px; overflow-y: auto;">
             <li
               :for={skill <- @skills[cat.id]}
               class="text-gray-400 cursor-pointer relative group w-fit"
