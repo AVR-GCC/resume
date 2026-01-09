@@ -46,6 +46,20 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// Skill tooltip positioning
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".skill-item").forEach(item => {
+    const tooltip = item.querySelector(".skill-tooltip")
+    if (!tooltip) return
+
+    item.addEventListener("mouseenter", () => {
+      const rect = item.getBoundingClientRect()
+      tooltip.style.left = `${rect.right + 4}px`
+      tooltip.style.top = `${rect.top}px`
+    })
+  })
+})
+
 // The lines below enable quality of life phoenix_live_reload
 // development features:
 //
