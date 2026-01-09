@@ -58,6 +58,8 @@ if config_env() == :prod do
   config :resume, ResumeWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     check_origin: [
+      "https://bar-yehudai.pro",
+      "https://www.bar-yehudai.pro",
       "https://bar-yehudai.cv",
       "https://www.bar-yehudai.cv"
     ],
