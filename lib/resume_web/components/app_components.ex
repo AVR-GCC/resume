@@ -29,8 +29,8 @@ defmodule ResumeWeb.AppComponents do
 
   def page(assigns) do
     ~H"""
-    <div class="container mx-auto px-6 z-10 animate-fade-in min-h-screen">
-      <div class="absolute top-0 left-0 right-0 z-20">
+    <div class="container mx-auto px-6 z-10 animate-fade-in min-h-screen flex flex-col">
+      <div class="relative z-20">
         <.toolbar />
       </div>
       <div class="fixed inset-0 z-0">
@@ -42,7 +42,7 @@ defmodule ResumeWeb.AppComponents do
         <div class="absolute inset-0 bg-black/50" />
         <%!-- <div class="absolute inset-0 bg-gradient-to-b from-background/20 via-background/50 to-background" /> --%>
       </div>
-      <div class="pt-20 h-full relative z-10">
+      <div class="flex-1 relative z-10">
         {render_slot(@inner_block)}
       </div>
       <ResumeWeb.Layouts.flash_group flash={@flash} />
