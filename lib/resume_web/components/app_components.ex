@@ -6,7 +6,7 @@ defmodule ResumeWeb.AppComponents do
     style =
       "transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(.4, 0, .2, 1); transition-duration: .15s;"
 
-    class = "p-5 text-gray-400 hover:text-[#20d8f8]"
+    class = "p-2 sm:p-5 text-gray-400 hover:text-[#20d8f8]"
 
     assigns =
       assigns
