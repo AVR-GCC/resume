@@ -4,6 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <meta property="og:title" content={assigns[:page_title] || "Bar Yehudai - Software Engineer"} />
+    <meta property="og:description" content={assigns[:page_description] || "creating scalable web applications, building robust backend systems, designing efficient algorithms and intelligent architecture, and optimizing complex distributed systems"} />
+    <meta property="og:image" content={assigns[:og_image] || ~p"/favicon.ico"} />
+    <meta property="og:url" content={assigns[:canonical_url] || "bar.yehudai.pro"} />
+    <meta name="twitter:card" content="summary_large_image" />
     <.live_title default="Bar Yehudai" suffix=" · Software Engineer">
       {assigns[:page_title]}
     </.live_title>
