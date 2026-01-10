@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Isaac Yehudai - Resume</title>
+    <style>
+        @page {
+            margin: 0.5in;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Calibri;
+            line-height: 1.5;
+            color: #333;
+            max-width: 8.5in;
+            margin: 0 auto;
+            padding: 0.23in;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c5aa0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            color: #2c5aa0;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .contact-info {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #2c5aa0;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        h2 {
+            font-size: 18px;
+            color: #2c5aa0;
+            text-transform: uppercase;
+            border-bottom: 2px solid #2c5aa0;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .job, .project, .education-item {
+            margin-bottom: 15px;
+        }
+        
+        .job-header, .project-header, .education-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 5px;
+        }
+        
+        .job-title, .project-title, .education-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .company {
+            font-weight: 600;
+            color: #2c5aa0;
+        }
+        
+        .date {
+            font-size: 11px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .job-description, .project-description {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        ul {
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+        
+        li {
+            margin-bottom: 5px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .skills-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            font-size: 11px;
+        }
+        
+        .skill-item {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .skill-label {
+            font-weight: 700;
+            color: #2c5aa0;
+            display: inline-block;
+            min-width: 180px;
+        }
+        
+        .achievement-box {
+            background: #f8f9fa;
+            padding: 12px;
+            border-left: 4px solid #2c5aa0;
+            margin-top: 10px;
+        }
+        
+        .achievement-title {
+            font-weight: 700;
+            color: #2c5aa0;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-text {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .coursework {
+            font-size: 11px;
+            color: #555;
+            margin-top: 5px;
+            line-height: 1.6;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+            
+            .header {
+                page-break-after: avoid;
+            }
+            
+            h2 {
+                page-break-after: avoid;
+            }
+            
+            .job, .project, .education-item {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Bar Isaac Yehudai</h1>
+        <div class="subtitle">Senior Software Engineer</div>
+        <div class="contact-info">
+            ogoun.d@gmail.com | +1 (603) 264 7729 | +972 544664064<br>
+            997 NH-11 Farmington, NH | HaAhim Bejerano St 14, Ramat Gan | Open to relocate<br>
+            https://github.com/AVR-GCC
+        </div>
+    </div>
+
+    <div class="summary">
+        Senior software engineer with over ten years experience and 7 years of professional software development. Specializing in full-stack development, distributed systems, and functional programming. Seeking opportunities to contribute to innovative technical challenges and architect scalable solutions.
+    </div>
+
+    <h2>Work Experience</h2>
+    
+    <div class="job">
+        <div class="job-header">
+            <div class="job-title"><span class="company">Proggio</span> - Senior Full Stack Engineer</div>
+            <div class="date">March 2022 - Present</div>
+        </div>
+        <ul>
+            <li>Engineered server-side logic, increasing algorithmic efficiency and resulting in faster data processing for company users</li>
+            <li>Elevated to lead engineer, managing R&D projects and ensuring on-time delivery of deliverables</li>
+            <li>Engineered complete AI app architecture, boosting processing efficiency and customer satisfaction through innovative API integration and feature design</li>
+            <li>Optimized app architecture, resulting in significant performance improvements and smoother user interactions</li>
+            <li>Successfully transitioned to remote position, leading to increased project efficiency</li>
+        </ul>
+    </div>
+
+    <div class="job">
+        <div class="job-header">
+            <div class="job-title"><span class="company">Pi Club</span> - Full Stack Engineer</div>
+            <div class="date">September 2021 - March 2022</div>
+        </div>
+        <ul>
+            <li>Maintained and expanded admin dashboard using React with Material UI, holding sole responsibility for the application</li>
+            <li>Optimized NodeJS application backend, adding cashbacks and stories features, resulting in increased daily active users</li>
+            <li>Developed intricate Mongoose aggregation pipelines, enhancing admin dashboard data collection capabilities</li>
+        </ul>
+    </div>
+
+    <div class="job">
+        <div class="job-header">
+            <div class="job-title"><span class="company">Proggio</span> - Senior Full Stack Engineer</div>
+            <div class="date">August 2018 - September 2021</div>
+        </div>
+        <ul>
+            <li>Maintained and expanded front-end application, fixing bugs and developing UI features using React, Redux, and related technologies</li>
+            <li>Maintained and expanded back-end application, fixing bugs and developing REST routes using Node, Hapi, and related technologies</li>
+            <li>Authored PostgreSQL scripts to enhance database functionality, seamlessly integrating with Sequelize and MongoDB</li>
+            <li>Engineered a mobile application from concept to publication on the App Store and Google Play</li>
+        </ul>
+    </div>
+
+    <div class="job">
+        <div class="job-header">
+            <div class="job-title"><span class="company">Experitest</span> - Trainee</div>
+            <div class="date">March 2016 - June 2016</div>
+        </div>
+        <ul>
+            <li>Trained as sales engineer for Experitest, gaining expertise in JUnit unit testing framework and Jenkins continuous integration software</li>
+        </ul>
+    </div>
+
+    <div class="job">
+        <div class="job-header">
+            <div class="job-title"><span class="company">Mentor Graphics</span> - Development Student</div>
+            <div class="date">September 2014 - March 2016</div>
+        </div>
+    </div>
+
+    <h2>Projects</h2>
+
+    <div class="project">
+        <div class="project-header">
+            <div class="project-title"><span class="company">Life in Order</span> - Independent</div>
+            <div class="date">2023 - Present</div>
+        </div>
+        <div class="project-description">
+            Full-stack habit tracking application demonstrating advanced problem-solving and technology adoption:
+        </div>
+        <ul>
+            <li><strong>Backend:</strong> Built scalable server in Rust using Actix Web, implementing sophisticated data processing and image generation</li>
+            <li><strong>Frontend:</strong> Developed React Native mobile application with complex state management and performance optimization</li>
+            <li><strong>Innovation:</strong> Engineered unique zoom and scroll system serving either raw data or dynamically-generated WebP images based on zoom level (1, 2, 4, or 8 pixels per day), enabling users to visualize months or years of habit data on a single screen without performance degradation</li>
+            <li><strong>Architecture:</strong> Implemented intelligent caching and preloading system that maintains surrounding zoom levels and date ranges for seamless user experience</li>
+            <li>Demonstrates ability to rapidly learn new technologies (Rust, Actix Web) and architect creative solutions to complex performance challenges</li>
+        </ul>
+    </div>
+
+    <div class="project">
+        <div class="project-header">
+            <div class="project-title"><span class="company">Advent of Code Challenges</span> - Independent</div>
+            <div class="date">June 2016 - Present</div>
+        </div>
+        <ul>
+            <li>ML-type functional programming with static typing like Ocaml or Elixir</li>
+            <li>Programming algorithms and problem-solving exercises</li>
+            <li>Continuous skill development in computational thinking</li>
+        </ul>
+    </div>
+
+    <div class="project">
+        <div class="project-header">
+            <div class="project-title"><span class="company">ICO Tube</span> - Independent</div>
+            <div class="date">Past Project</div>
+        </div>
+        <ul>
+            <li>Integration with Web3, smart contract compilation, and MetaMask interaction</li>
+            <li>Provided valuable experience in blockchain technologies and independent project management</li>
+        </ul>
+    </div>
+
+    <h2>Education</h2>
+
+    <div class="education-item">
+        <div class="education-header">
+            <div class="education-title"><span class="company">Chaincode Labs</span></div>
+            <div class="date">2025 - Present</div>
+        </div>
+        <div class="job-description">BOSS PROGRAM for Bitcoin Opensource Contribution | New York</div>
+    </div>
+
+    <div class="education-item">
+        <div class="education-header">
+            <div class="education-title"><span class="company">Tel-Aviv University</span></div>
+            <div class="date">2012 - 2018</div>
+        </div>
+        <div class="job-description">Bachelor of Computer Science and Electrical Engineering</div>
+        <div class="coursework">
+            <strong>Relevant coursework:</strong> Modern Cryptography, Java, Python, Software Project (Chess game in C), Workshop in Compilation (Python, AVR), Data Structures Project (SQL, SWING), Semiconductors, Digital Logical Systems, Analog Circuits
+        </div>
+    </div>
+
+    <h2>Technical Skills</h2>
+    
+    <div class="skills-section">
+        <div class="skill-item">
+            <span class="skill-label">Languages:</span> Rust, TypeScript, JavaScript, Python, OCaml, Elixir, F*, C++, Solidity, Swift
+        </div>
+        <div class="skill-item">
+            <span class="skill-label">Functional Programming:</span> OCaml, Elixir, F*, experience with functional paradigms and immutable data structures
+        </div>
+        <div class="skill-item">
+            <span class="skill-label">Backend Development:</span> Node.js, Actix Web (Rust), PostgreSQL, MongoDB, REST APIs, event-driven architectures
+        </div>
+        <div class="skill-item">
+            <span class="skill-label">Frontend Development:</span> React, React Native, React Router, TypeScript, HTML/CSS
+        </div>
+        <div class="skill-item">
+            <span class="skill-label">Mobile Development:</span> React Native, LynxJS, Android (Kotlin), iOS deployment (App Store & Google Play)
+        </div>
+        <div class="skill-item">
+            <span class="skill-label">Databases:</span> PostgreSQL, MongoDB, SQL, Sequelize, Mongoose
+        </div>
+        <div class="skill-item">
+            <span class="skill-label">Tools & Technologies:</span> Git, Neovim, Docker, CI/CD, Remote collaboration tools
+        </div>
+        <div class="skill-item">
+            <span class="skill-label">Blockchain:</span> Smart contracts, Web3 integration, cryptocurrencies, incentive models
+        </div>
+        <div class="skill-item">
+            <span class="skill-label">Languages:</span> English and Hebrew (native proficiency in both)
+        </div>
+    </div>
+
+    <h2>Achievements</h2>
+    
+    <div class="achievement-box">
+        <div class="achievement-title">International Physics Olympiad Training Camp</div>
+        <div class="achievement-text">
+            Selected for the final stage of the International Physics Olympiad and participated in a two-week intensive training camp at the Technion, focusing on physics, creative problem solving, and structured thinking.
+        </div>
+    </div>
+
+    <h2>Professional Attributes</h2>
+    
+    <ul>
+        <li>Swift and practical self-education in emerging technologies</li>
+        <li>Strong analytical and troubleshooting abilities</li>
+        <li>Effective remote collaboration and communication</li>
+        <li>Experience leading technical projects and mentoring team members</li>
+        <li>Proven ability to take ownership of features from concept to deployment</li>
+    </ul>
+</body>
+</html>
