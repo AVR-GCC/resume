@@ -1,11 +1,16 @@
 <.page flash={@flash} current_path={@conn.request_path}>
   <div class="flex flex-col items-center h-full">
     <div class="mb-8 flex justify-center">
-      <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 hover:border-[#0598a8] border-[#057898]/80 overflow-hidden bg-muted flex items-center justify-center shadow-[0_0_20px_5px_aqua]/40 hover:shadow-[0_0_20px_5px_aqua]/80 transition-all duration-1000">
+      <div class="relative group w-32 h-32 md:w-40 md:h-40 rounded-full border-4 hover:border-[#0598a8] border-[#057898]/80 overflow-hidden bg-[#057898] flex items-center justify-center shadow-[0_0_20px_5px_aqua]/40 hover:shadow-[0_0_20px_5px_aqua]/80 transition-all duration-1000">
         <img
           src="/images/pro-pic-cropped.jpeg"
           alt="Bar Yehudai"
-          class="w-full h-full object-cover"
+          class="absolute w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+        />
+        <img
+          src="/images/pro-pic-logo.svg"
+          alt="Bar Yehudai"
+          class="absolute scale-x-95 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
         />
       </div>
     </div>
