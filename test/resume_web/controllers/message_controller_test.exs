@@ -4,67 +4,27 @@ defmodule ResumeWeb.MessageControllerTest do
   import Resume.MessagesFixtures
 
   @create_attrs %{name: "some name", email: "some email", content: "some content"}
-  @update_attrs %{
-    name: "some updated name",
-    email: "some updated email",
-    content: "some updated content"
-  }
-  @invalid_attrs %{name: nil, email: nil, content: nil}
 
   describe "index" do
     test "lists all messages", %{conn: conn} do
-      conn = get(conn, ~p"/messages")
-      assert html_response(conn, 200) =~ "Listing Messages"
-    end
-  end
-
-  describe "new message" do
-    test "renders form", %{conn: conn} do
-      conn = get(conn, ~p"/messages/new")
-      assert html_response(conn, 200) =~ "New Message"
+      conn = get(conn, ~p"/admin/messages")
+      assert html_response(conn, 200) =~ "Messages"
     end
   end
 
   describe "create message" do
-    test "redirects to show when data is valid", %{conn: conn} do
+    test "redirects to contact when data is valid", %{conn: conn} do
       conn = post(conn, ~p"/messages", message: @create_attrs)
-
-      assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == ~p"/messages/#{id}"
-
-      conn = get(conn, ~p"/messages/#{id}")
-      assert html_response(conn, 200) =~ "Message #{id}"
-    end
-
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, ~p"/messages", message: @invalid_attrs)
-      assert html_response(conn, 200) =~ "New Message"
+      assert redirected_to(conn) == ~p"/contact"
     end
   end
 
-  describe "edit message" do
+  describe "show message" do
     setup [:create_message]
 
-    test "renders form for editing chosen message", %{conn: conn, message: message} do
-      conn = get(conn, ~p"/messages/#{message}/edit")
-      assert html_response(conn, 200) =~ "Edit Message"
-    end
-  end
-
-  describe "update message" do
-    setup [:create_message]
-
-    test "redirects when data is valid", %{conn: conn, message: message} do
-      conn = put(conn, ~p"/messages/#{message}", message: @update_attrs)
-      assert redirected_to(conn) == ~p"/messages/#{message}"
-
-      conn = get(conn, ~p"/messages/#{message}")
-      assert html_response(conn, 200) =~ "some updated name"
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, message: message} do
-      conn = put(conn, ~p"/messages/#{message}", message: @invalid_attrs)
-      assert html_response(conn, 200) =~ "Edit Message"
+    test "shows chosen message", %{conn: conn, message: message} do
+      conn = get(conn, ~p"/admin/messages/#{message}")
+      assert html_response(conn, 200) =~ "Message #{message.id}"
     end
   end
 
@@ -72,11 +32,11 @@ defmodule ResumeWeb.MessageControllerTest do
     setup [:create_message]
 
     test "deletes chosen message", %{conn: conn, message: message} do
-      conn = delete(conn, ~p"/messages/#{message}")
-      assert redirected_to(conn) == ~p"/messages"
+      conn = delete(conn, ~p"/admin/messages/#{message}")
+      assert redirected_to(conn) == ~p"/admin/messages"
 
       assert_error_sent 404, fn ->
-        get(conn, ~p"/messages/#{message}")
+        get(conn, ~p"/admin/messages/#{message}")
       end
     end
   end

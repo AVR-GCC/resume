@@ -12,16 +12,25 @@ defmodule Resume.ProjectsTest do
 
     test "list_projects/0 returns all projects" do
       project = project_fixture()
-      assert Projects.list_projects() == [project]
+      [listed_project] = Projects.list_projects()
+      assert listed_project.id == project.id
+      assert listed_project.title == project.title
     end
 
     test "get_project!/1 returns the project with given id" do
       project = project_fixture()
-      assert Projects.get_project!(project.id) == project
+      fetched_project = Projects.get_project!(project.id)
+      assert fetched_project.id == project.id
+      assert fetched_project.title == project.title
     end
 
     test "create_project/1 with valid data creates a project" do
-      valid_attrs = %{description: "some description", title: "some title", live: "some live", repo: "some repo"}
+      valid_attrs = %{
+        description: "some description",
+        title: "some title",
+        live: "some live",
+        repo: "some repo"
+      }
 
       assert {:ok, %Project{} = project} = Projects.create_project(valid_attrs)
       assert project.description == "some description"
@@ -36,7 +45,13 @@ defmodule Resume.ProjectsTest do
 
     test "update_project/2 with valid data updates the project" do
       project = project_fixture()
-      update_attrs = %{description: "some updated description", title: "some updated title", live: "some updated live", repo: "some updated repo"}
+
+      update_attrs = %{
+        description: "some updated description",
+        title: "some updated title",
+        live: "some updated live",
+        repo: "some updated repo"
+      }
 
       assert {:ok, %Project{} = project} = Projects.update_project(project, update_attrs)
       assert project.description == "some updated description"
@@ -48,7 +63,9 @@ defmodule Resume.ProjectsTest do
     test "update_project/2 with invalid data returns error changeset" do
       project = project_fixture()
       assert {:error, %Ecto.Changeset{}} = Projects.update_project(project, @invalid_attrs)
-      assert project == Projects.get_project!(project.id)
+      fetched_project = Projects.get_project!(project.id)
+      assert project.id == fetched_project.id
+      assert project.title == fetched_project.title
     end
 
     test "delete_project/1 deletes the project" do

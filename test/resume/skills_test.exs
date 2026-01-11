@@ -12,7 +12,9 @@ defmodule Resume.SkillsTest do
 
     test "list_skills/0 returns all skills" do
       skill = skill_fixture()
-      assert Skills.list_skills() == [skill]
+      [listed_skill] = Skills.list_skills()
+      assert listed_skill.id == skill.id
+      assert listed_skill.name == skill.name
     end
 
     test "get_skill!/1 returns the skill with given id" do

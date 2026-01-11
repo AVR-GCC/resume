@@ -42,7 +42,8 @@ defmodule ResumeWeb.ProjectController do
         |> redirect(to: ~p"/admin/projects/#{project}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :new, changeset: changeset)
+        skills = Skills.list_skills()
+        render(conn, :new, changeset: changeset, skills: skills)
     end
   end
 
@@ -90,7 +91,8 @@ defmodule ResumeWeb.ProjectController do
         |> redirect(to: ~p"/admin/projects/#{project}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :edit, project: project, changeset: changeset)
+        skills = Skills.list_skills()
+        render(conn, :edit, project: project, changeset: changeset, skills: skills)
     end
   end
 
