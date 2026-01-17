@@ -403,7 +403,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
 
   def price_history(assigns) do
     full_history = [assigns.price | assigns.price_history]
-    price_history_mobile = Enum.take(full_history, 33)
+    price_history_mobile = Enum.take(full_history, 30)
     price_history_desktop = Enum.take(full_history, 100)
 
     {min_mobile, max_mobile} = Enum.min_max(price_history_mobile, fn -> {0, 1} end)
@@ -458,7 +458,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
           {:erlang.float_to_binary(@offset_desktop / 1.0, decimals: 2)}
         </div>
       </div>
-      <div class="flex justify-end items-end w-[264px] sm:hidden">
+      <div class="flex justify-end items-end w-[245px] sm:hidden">
         <div class="h-[300px]" />
         <.candles
           lst={Enum.reverse(@price_history_mobile)}
