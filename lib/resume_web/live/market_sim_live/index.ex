@@ -338,13 +338,13 @@ defmodule ResumeWeb.MarketSimLive.Index do
             2
           )}
         </:col>
-        <:col :let={{{_, holdings, _}, _}} label="Cash">
+        <:col :let={{{_, holdings, _}, _}} label="Cash" class="hidden sm:table-cell">
           {get_in(holdings, [:cash])}
         </:col>
-        <:col :let={{{_, holdings, _}, _}} label="Asset">
+        <:col :let={{{_, holdings, _}, _}} label="Asset" class="hidden sm:table-cell">
           {get_in(holdings, [:holdings, :market])}
         </:col>
-        <:col :let={{{_, _, trades}, _}} label="Direction">
+        <:col :let={{{_, _, trades}, _}}>
           <div :if={get_in(trades, [:direction]) == :buy}>
             <.icon name="hero-arrow-up" class="text-green-500" />
           </div>
@@ -402,41 +402,77 @@ defmodule ResumeWeb.MarketSimLive.Index do
   end
 
   def price_history(assigns) do
-    price_history =
-      [assigns.price | assigns.price_history]
-      |> Enum.take(100)
+    full_history = [assigns.price | assigns.price_history]
+    price_history_mobile = Enum.take(full_history, 33)
+    price_history_desktop = Enum.take(full_history, 100)
 
-    {min, max} = Enum.min_max(price_history, fn -> {0, 1} end)
+    {min_mobile, max_mobile} = Enum.min_max(price_history_mobile, fn -> {0, 1} end)
+    {min_desktop, max_desktop} = Enum.min_max(price_history_desktop, fn -> {0, 1} end)
 
     assigns =
       assigns
-      |> assign(:price_history, price_history)
-      |> assign(:offset, min)
+      |> assign(:price_history_mobile, price_history_mobile)
+      |> assign(:price_history_desktop, price_history_desktop)
+      |> assign(:offset_mobile, min_mobile)
+      |> assign(:offset_desktop, min_desktop)
       |> assign(
-        :variance,
-        if max == min do
+        :variance_mobile,
+        if max_mobile == min_mobile do
           1
         else
-          max - min
+          max_mobile - min_mobile
+        end
+      )
+      |> assign(
+        :variance_desktop,
+        if max_desktop == min_desktop do
+          1
+        else
+          max_desktop - min_desktop
         end
       )
 
     ~H"""
     <div class="flex-3 flex items-end h-[300px]">
-      <div class="flex flex-col justify-between h-full mr-5">
-        {:erlang.float_to_binary((@offset + @variance) / 1.0, decimals: 2)}
+      <div class="flex flex-col justify-between h-[300px] mr-5 sm:hidden">
+        {:erlang.float_to_binary((@offset_mobile + @variance_mobile) / 1.0, decimals: 2)}
         <div>
-          {:erlang.float_to_binary(@offset + 2 * @variance / 3, decimals: 2)}
+          {:erlang.float_to_binary(@offset_mobile + 2 * @variance_mobile / 3, decimals: 2)}
         </div>
         <div>
-          {:erlang.float_to_binary(@offset + @variance / 3, decimals: 2)}
+          {:erlang.float_to_binary(@offset_mobile + @variance_mobile / 3, decimals: 2)}
         </div>
         <div>
-          {:erlang.float_to_binary(@offset / 1.0, decimals: 2)}
+          {:erlang.float_to_binary(@offset_mobile / 1.0, decimals: 2)}
         </div>
       </div>
-      <div class="flex justify-end items-end w-[756px]">
-        <.candles lst={Enum.reverse(@price_history)} offset={@offset} variance={@variance} />
+      <div class="hidden sm:flex flex-col justify-between h-[300px] mr-5">
+        {:erlang.float_to_binary((@offset_desktop + @variance_desktop) / 1.0, decimals: 2)}
+        <div>
+          {:erlang.float_to_binary(@offset_desktop + 2 * @variance_desktop / 3, decimals: 2)}
+        </div>
+        <div>
+          {:erlang.float_to_binary(@offset_desktop + @variance_desktop / 3, decimals: 2)}
+        </div>
+        <div>
+          {:erlang.float_to_binary(@offset_desktop / 1.0, decimals: 2)}
+        </div>
+      </div>
+      <div class="flex justify-end items-end w-[264px] sm:hidden">
+        <div class="h-[300px]" />
+        <.candles
+          lst={Enum.reverse(@price_history_mobile)}
+          offset={@offset_mobile}
+          variance={@variance_mobile}
+        />
+      </div>
+      <div class="hidden sm:flex justify-end items-end w-[756px]">
+        <div class="h-[300px]" />
+        <.candles
+          lst={Enum.reverse(@price_history_desktop)}
+          offset={@offset_desktop}
+          variance={@variance_desktop}
+        />
       </div>
     </div>
     """
@@ -512,7 +548,7 @@ defmodule ResumeWeb.MarketSimLive.Index do
         <p class="flex items-center pl-5 text-xs">External Sentiment: {@external_sentiment}</p>
       </div>
 
-      <div class="flex">
+      <div class="flex flex-col sm:flex-row">
         <div class="flex-1 flex flex-col items-center m-2 p-5 border-neutral-50 border-2">
           <h2 class="w-fit">Add Trader</h2>
           <.new_trader {assigns} />
@@ -522,8 +558,8 @@ defmodule ResumeWeb.MarketSimLive.Index do
           <.traders_list {assigns} />
         </div>
       </div>
-      <div class="flex">
-        <div class="flex-3 flex flex-col items-center p-5 m-2 border-neutral-50 border-2">
+      <div class="flex flex-col-reverse sm:flex-row">
+        <div class="flex-3 flex flex-col items-center p-5 m-2 border-neutral-50 border-2 h-[368px]">
           <h2>History</h2>
           <.price_history {assigns} />
         </div>

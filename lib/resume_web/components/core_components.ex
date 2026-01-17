@@ -323,6 +323,7 @@ defmodule ResumeWeb.CoreComponents do
 
   slot :col, required: true do
     attr :label, :string
+    attr :class, :string
   end
 
   slot :action, doc: "the slot for showing user actions in the last table column"
@@ -334,10 +335,10 @@ defmodule ResumeWeb.CoreComponents do
       end
 
     ~H"""
-    <table class="table table-zebra">
+    <table class="table table-zebra table-xs sm:table-md">
       <thead>
         <tr>
-          <th :for={col <- @col}>{col[:label]}</th>
+          <th :for={col <- @col} class={col[:class]}>{col[:label]}</th>
           <th :if={@action != []}>
             <span class="sr-only">{gettext("Actions")}</span>
           </th>
@@ -348,7 +349,7 @@ defmodule ResumeWeb.CoreComponents do
           <td
             :for={col <- @col}
             phx-click={@row_click && @row_click.(row)}
-            class={@row_click && "hover:cursor-pointer"}
+            class={[col[:class], @row_click && "hover:cursor-pointer"]}
           >
             {render_slot(col, @row_item.(row))}
           </td>
