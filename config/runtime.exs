@@ -30,9 +30,15 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
+  database_uri = URI.parse(database_url)
+
   config :resume, Resume.Repo,
-    ssl: true,
     url: database_url,
+    ssl: [
+      verify: :verify_peer,
+      cacerts: :public_key.cacerts_get(),
+      server_name_indication: to_charlist(database_uri.host)
+    ],
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     # For machines with several cores, consider starting multiple pools of `pool_size`
     # pool_count: 4,
